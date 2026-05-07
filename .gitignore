@@ -1,0 +1,47 @@
+# Arquivos sensíveis
+.env
+.env.*
+*.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Media files
+media/
+cache/
+
+# Binários e builds
+tmp/
+*.exe
+*.dll
+*.so
+*.dylib
+main
+media-server
+
+# Go
+*.test
+*.out
+vendor/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+.kiro/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+docker-compose.override.yml
