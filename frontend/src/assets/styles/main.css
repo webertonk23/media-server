@@ -1,0 +1,423 @@
+@import "tailwindcss";
+
+/* ============================================
+   THEME CONFIGURATION
+   Custom CSS variables for cinematic dark theme
+   ============================================ */
+
+@theme {
+  /* ============================================
+     COLOR PALETTE - Dark Cinematic Theme
+     Requirements: 15.1
+     ============================================ */
+  
+  /* Dark background shades */
+  --color-cinema-dark-950: #000000;
+  --color-cinema-dark-900: #0a0a0a;
+  --color-cinema-dark-800: #121212;
+  --color-cinema-dark-700: #1a1a1a;
+  --color-cinema-dark-600: #242424;
+  --color-cinema-dark-500: #2e2e2e;
+  --color-cinema-dark-400: #3a3a3a;
+  
+  /* Accent colors for interactive elements */
+  --color-cinema-accent-primary: #e50914;
+  --color-cinema-accent-primary-hover: #f40612;
+  --color-cinema-accent-secondary: #f5c518;
+  --color-cinema-accent-tertiary: #00d4ff;
+  
+  /* Text colors with hierarchy */
+  --color-cinema-text-primary: #ffffff;
+  --color-cinema-text-secondary: #b3b3b3;
+  --color-cinema-text-tertiary: #808080;
+  --color-cinema-text-muted: #666666;
+  
+  /* Overlay and glassmorphism colors */
+  --color-cinema-overlay: rgba(0, 0, 0, 0.7);
+  --color-cinema-glass: rgba(18, 18, 18, 0.8);
+  --color-cinema-glass-light: rgba(36, 36, 36, 0.6);
+  
+  /* ============================================
+     TYPOGRAPHY
+     Requirements: 15.5
+     ============================================ */
+  
+  --font-family-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-display: Poppins, Inter, sans-serif;
+  
+  /* ============================================
+     SPACING & SIZING
+     Requirements: 10.1, 10.2, 10.3, 10.4
+     ============================================ */
+  
+  /* Custom spacing for media grids */
+  --spacing-grid-gap: 1rem;
+  --spacing-grid-gap-lg: 1.5rem;
+  --spacing-grid-gap-xl: 2rem;
+  
+  /* Container max widths for responsive breakpoints */
+  --container-mobile: 100%;
+  --container-tablet: 768px;
+  --container-desktop: 1280px;
+  --container-ultrawide: 1920px;
+  
+  /* ============================================
+     SHADOWS
+     Requirements: 15.2
+     ============================================ */
+  
+  --shadow-cinema-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-cinema: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-cinema-lg: 0 10px 40px rgba(0, 0, 0, 0.7);
+  --shadow-cinema-xl: 0 20px 60px rgba(0, 0, 0, 0.9);
+  
+  /* ============================================
+     BACKDROP BLUR
+     Requirements: 15.4
+     ============================================ */
+  
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 12px;
+  --blur-xl: 16px;
+  --blur-2xl: 24px;
+  
+  /* ============================================
+     TRANSITIONS
+     Requirements: 15.3
+     ============================================ */
+  
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ============================================
+     RESPONSIVE BREAKPOINTS
+     Requirements: 10.1, 10.2, 10.3, 10.4
+     ============================================ */
+  
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;   /* Mobile breakpoint */
+  --breakpoint-lg: 1024px;  /* Tablet breakpoint */
+  --breakpoint-xl: 1920px;  /* Desktop breakpoint */
+  --breakpoint-2xl: 2560px; /* Ultrawide breakpoint */
+}
+
+/* ============================================
+   BASE STYLES
+   Global styles for dark theme
+   Requirements: 15.1, 15.5
+   ============================================ */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    font-family: var(--font-family-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  body {
+    background-color: var(--color-cinema-dark-900);
+    color: var(--color-cinema-text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-display);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* Scrollbar styling for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--color-cinema-dark-800);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-cinema-dark-500);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-cinema-dark-400);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   Custom utilities for glassmorphism and effects
+   Requirements: 15.2, 15.3, 15.4
+   ============================================ */
+
+@layer utilities {
+  /* Glassmorphism effects */
+  .glass {
+    background: var(--color-cinema-glass);
+    backdrop-filter: blur(var(--blur-lg));
+    -webkit-backdrop-filter: blur(var(--blur-lg));
+  }
+  
+  .glass-light {
+    background: var(--color-cinema-glass-light);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+  }
+  
+  .glass-overlay {
+    background: var(--color-cinema-overlay);
+    backdrop-filter: blur(var(--blur-xl));
+    -webkit-backdrop-filter: blur(var(--blur-xl));
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all var(--transition-base);
+  }
+  
+  .transition-smooth-fast {
+    transition: all var(--transition-fast);
+  }
+  
+  .transition-smooth-slow {
+    transition: all var(--transition-slow);
+  }
+  
+  /* Hover effects for media cards */
+  .hover-lift {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-cinema-lg);
+  }
+  
+  /* Backdrop blur utilities */
+  .backdrop-blur-cinema {
+    backdrop-filter: blur(var(--blur-lg));
+    -webkit-backdrop-filter: blur(var(--blur-lg));
+  }
+  
+  .backdrop-blur-cinema-sm {
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+  }
+  
+  .backdrop-blur-cinema-xl {
+    backdrop-filter: blur(var(--blur-xl));
+    -webkit-backdrop-filter: blur(var(--blur-xl));
+  }
+  
+  /* Text gradients for accents */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, var(--color-cinema-accent-primary), var(--color-cinema-accent-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Shadow utilities */
+  .shadow-cinema {
+    box-shadow: var(--shadow-cinema);
+  }
+  
+  .shadow-cinema-sm {
+    box-shadow: var(--shadow-cinema-sm);
+  }
+  
+  .shadow-cinema-lg {
+    box-shadow: var(--shadow-cinema-lg);
+  }
+  
+  .shadow-cinema-xl {
+    box-shadow: var(--shadow-cinema-xl);
+  }
+  
+  /* Overlay gradient for hero banners */
+  .overlay-gradient {
+    background: linear-gradient(
+      to top,
+      var(--color-cinema-dark-900) 0%,
+      rgba(10, 10, 10, 0.8) 50%,
+      transparent 100%
+    );
+  }
+  
+  .overlay-gradient-bottom {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(10, 10, 10, 0.8) 50%,
+      var(--color-cinema-dark-900) 100%
+    );
+  }
+  
+  /* Focus styles for accessibility */
+  .focus-cinema {
+    outline: 2px solid var(--color-cinema-accent-primary);
+    outline-offset: 2px;
+  }
+  
+  /* Loading skeleton animation */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-cinema-dark-700) 25%,
+      var(--color-cinema-dark-600) 50%,
+      var(--color-cinema-dark-700) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  
+  /* Fade in animation */
+  .fade-in {
+    animation: fade-in var(--transition-base) ease-in;
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Slide up animation */
+  .slide-up {
+    animation: slide-up var(--transition-slow) ease-out;
+  }
+  
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ============================================
+   COMPONENT STYLES
+   Reusable component patterns
+   ============================================ */
+
+@layer components {
+  /* Button base styles */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    transition: all var(--transition-base);
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: var(--color-cinema-accent-primary);
+    color: var(--color-cinema-text-primary);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-cinema-accent-primary-hover);
+    box-shadow: var(--shadow-cinema);
+  }
+  
+  .btn-secondary {
+    background-color: var(--color-cinema-dark-600);
+    color: var(--color-cinema-text-primary);
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--color-cinema-dark-500);
+  }
+  
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--color-cinema-text-primary);
+    border: 1px solid var(--color-cinema-dark-500);
+  }
+  
+  .btn-ghost:hover {
+    background-color: var(--color-cinema-dark-700);
+    border-color: var(--color-cinema-dark-400);
+  }
+  
+  /* Card base styles */
+  .card {
+    background-color: var(--color-cinema-dark-800);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+  
+  .card:hover {
+    box-shadow: var(--shadow-cinema-lg);
+  }
+  
+  /* Input base styles */
+  .input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-cinema-dark-700);
+    color: var(--color-cinema-text-primary);
+    border: 1px solid var(--color-cinema-dark-600);
+    border-radius: 0.375rem;
+    transition: all var(--transition-fast);
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: var(--color-cinema-accent-primary);
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+  }
+  
+  .input::placeholder {
+    color: var(--color-cinema-text-tertiary);
+  }
+}

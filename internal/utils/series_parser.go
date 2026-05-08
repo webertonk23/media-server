@@ -23,7 +23,7 @@ var releaseTokens = []string{
 	// Codec
 	"x264", "x265", "h264", "h265", "hevc", "avc", "xvid", "x", "h",
 	// Source
-	"web-dl", "web dl", "webrip", "web rip", "bluray", "blu ray", 
+	"web-dl", "web dl", "webrip", "web rip", "bluray", "blu ray",
 	"brrip", "bdrip", "dvdrip", "hdtv", "hdcam", "cam", "ts",
 	// Audio
 	"dual", "aac", "ac3", "dts", "5 1", "7 1", "2 0", "atmos",
@@ -31,6 +31,7 @@ var releaseTokens = []string{
 	"compacto", "extended", "repack", "proper", "unrated", "directors cut",
 	// Grupos de release (adicione mais conforme necessário)
 	"starckfilmes", "sf", "yify", "rarbg", "etrg", "yts", "amzn", "nf", "netflix",
+	"errai-raws", "avc-yuv444p10",
 }
 
 // ParseSeriesFilename tenta detectar se é uma série e extrair informações
@@ -66,16 +67,16 @@ func ParseSeriesFilename(path string) ParsedSeries {
 	// Extrair título
 	// 1. Normalizar separadores PRIMEIRO (. e _ para espaço)
 	title := normalizeSeparators(filename)
-	
+
 	// 2. Remover season/episode
 	title = removeSeasonEpisode(title)
-	
+
 	// 3. Remover ano
 	title = removeYear(title)
-	
+
 	// 4. Remover tokens de release (agora que os pontos viraram espaços)
 	title = removeReleaseTokens(title)
-	
+
 	// 5. Limpar espaços e capitalizar
 	title = cleanSpaces(title)
 
@@ -118,7 +119,7 @@ func removeSeasonEpisode(value string) string {
 		`[Ss]\d{1,2}[Ee]\d{1,3}`,
 		`\d{1,2}[xX]\d{1,3}`,
 		`[Ss]eason\s*\d{1,2}\s*[Ee]pisode\s*\d{1,3}`,
-		`\d{3,4}`, // Remove números como 101, 1001
+		`^\d{3,4}$`, // Remove números como 101, 1001 apenas se for o texto todo
 	}
 
 	result := value
@@ -143,7 +144,7 @@ func removeReleaseTokens(value string) string {
 	// Remover números soltos (1, 2, 3, etc) que sobraram
 	re := regexp.MustCompile(`\s+\d+\s+`)
 	lower = re.ReplaceAllString(lower, " ")
-	
+
 	// Remover números no final
 	re = regexp.MustCompile(`\s+\d+$`)
 	lower = re.ReplaceAllString(lower, "")
@@ -151,7 +152,7 @@ func removeReleaseTokens(value string) string {
 	// Remover letras ASCII soltas (p, x, etc) no meio de espaços
 	re = regexp.MustCompile(`\s+[a-z]\s+`)
 	lower = re.ReplaceAllString(lower, " ")
-	
+
 	// Remover letras ASCII soltas no final
 	re = regexp.MustCompile(`\s+[a-z]$`)
 	lower = re.ReplaceAllString(lower, "")

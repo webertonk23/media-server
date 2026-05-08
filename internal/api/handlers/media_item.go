@@ -49,6 +49,29 @@ func GetMediaItems(c *fiber.Ctx) error {
 	})
 }
 
+// GetMediaItemByID busca um media item específico por ULID
+func GetMediaItemByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "ID é obrigatório",
+		})
+	}
+
+	mediaItemService := services.NewMediaItemService()
+
+	item, err := mediaItemService.GetByULID(id)
+
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"error": "Mídia não encontrada",
+		})
+	}
+
+	return c.JSON(mappers.ToMediaItemResponse(*item))
+}
+
 // GetMovies lista apenas filmes
 func GetMovies(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
