@@ -4,31 +4,34 @@ Media server pessoal leve inspirado em Plex/Jellyfin, otimizado para Raspberry P
 
 ## 🎯 Características
 
-- 🎬 **Suporte a Filmes** (séries em breve)
+- 🎬 **Suporte a Filmes e Séries** com detecção automática
 - 🔍 **Metadata automática** via TMDB
-- 📺 **Streaming** com range requests
-- 📊 **Continue Watching** (progresso de visualização)
+- 📺 **Streaming** com range requests e suporte a múltiplos formatos
+- 📊 **Continue Watching** (progresso de visualização por episódio)
 - 🔐 **IDs seguros** com ULID
+- 🎨 **Interface Web moderna** com Vue 3 e Tailwind CSS
 - 🐳 **Docker** desde o início
 - ⚡ **Leve e rápido** para Raspberry Pi
 
 ## 🏗️ Stack
 
 ### Backend
-- **Go** 1.25
+- **Go** 1.23+
 - **Fiber** (web framework)
 - **GORM** (ORM)
 - **SQLite** (banco de dados)
 - **ULID** (identificadores únicos)
 
+### Frontend
+- **Vue 3** (SPA)
+- **TypeScript**
+- **Tailwind CSS** (styling)
+- **Vite** (build tool)
+- **Pinia** (state management)
+
 ### Infraestrutura
 - **Docker** + Docker Compose
-- **Air** (hot reload)
-
-### Frontend (futuro)
-- Android TV app em Kotlin
-- ExoPlayer
-- Interface estilo Netflix/Plex
+- **Air** (hot reload Go)
 
 ## 🚀 Quick Start
 
@@ -59,7 +62,8 @@ docker-compose up
 
 4. Acesse:
 ```
-http://localhost:9000/health
+API:       http://localhost:9000/health
+Interface: http://localhost:5173 (desenvolvimento)
 ```
 
 ## 📁 Estrutura de Diretórios
@@ -90,6 +94,38 @@ media-server/
     └── go/              # Dockerfile + scripts
 ```
 
+### Frontend
+
+```
+frontend/
+├── src/
+│   ├── components/        # Componentes reutilizáveis
+│   │   ├── common/        # Componentes genéricos
+│   │   ├── media/         # Componentes de mídia
+│   │   ├── player/        # Componentes do player
+│   │   └── search/        # Componentes de busca
+│   ├── composables/       # Composições Vue 3
+│   │   ├── useVideoPlayer.ts
+│   │   ├── useInfiniteScroll.ts
+│   │   └── ...
+│   ├── pages/             # Páginas da aplicação
+│   │   ├── HomePage.vue
+│   │   ├── CatalogPage.vue
+│   │   ├── PlayerPage.vue
+│   │   └── ...
+│   ├── router/            # Configuração de rotas
+│   ├── stores/            # Pinia stores (state)
+│   │   ├── mediaStore.ts
+│   │   ├── playerStore.ts
+│   │   └── ...
+│   ├── services/          # Serviços (API calls, etc)
+│   ├── types/             # TypeScript types
+│   └── utils/             # Utilitários
+├── vite.config.ts
+├── tailwind.config.js
+└── package.json
+```
+
 ## 🎬 Organização de Mídia
 
 ### Filmes
@@ -102,10 +138,25 @@ media/movies/
 └── Top Gun Maverick 2022 720p WEB-DL.mkv
 ```
 
+### Séries
+Coloque suas séries em `media/series/`:
+
+```
+media/series/
+├── Breaking Bad S01/
+│   ├── Breaking.Bad.S01E01.Pilot.1080p.mkv
+│   ├── Breaking.Bad.S01E02.Cat's.in.the.Bag.1080p.mkv
+│   └── ...
+└── Game of Thrones S01/
+    ├── Game.of.Thrones.S01E01.Winter.is.Coming.mkv
+    └── ...
+```
+
 O parser extrai automaticamente:
 - **Título**: "Doutor Estranho No Multiverso Da Loucura"
 - **Ano**: 2022
 - **Qualidade**: 4K, 1080p, 720p
+- **Série/Temporada/Episódio**: S01E01, S02E05, etc.
 
 ## 📡 API Endpoints
 
@@ -280,7 +331,43 @@ Arquivos  Título   Tipo      TMDB      MediaItem
 └─────────────────────────────────────────┘
 ```
 
-## 🔐 Segurança
+### Frontend - Arquitetura
+
+```
+┌─────────────────────────────────────────┐
+│         Vue Router (Pages)              │
+│  - HomePage, CatalogPage, PlayerPage    │
+└────────────────┬────────────────────────┘
+                 │
+┌────────────────▼────────────────────────┐
+│    Components (UI renderização)         │
+│  - Reutilizáveis em toda aplicação      │
+│  - Media, Player, Search, Common        │
+└────────────────┬────────────────────────┘
+                 │
+┌────────────────▼────────────────────────┐
+│       Pinia Stores (State Management)   │
+│  - mediaStore, playerStore, uiStore     │
+│  - Gerencia estado global                │
+└────────────────┬────────────────────────┘
+                 │
+┌────────────────▼────────────────────────┐
+│   Services (API Integration)            │
+│  - api.ts, mediaService, streamService  │
+│  - Comunicação com backend               │
+└─────────────────────────────────────────┘
+```
+
+### Composables
+
+Hooks Vue 3 reutilizáveis:
+- `useVideoPlayer` - Controle do player
+- `useInfiniteScroll` - Carregamento infinito
+- `useKeyboardShortcuts` - Atalhos de teclado
+- `useMediaQuery` - Media queries responsivas
+- `useDebounce` - Debounce para busca
+
+```
 
 ### ULID
 - IDs não previsíveis
@@ -324,7 +411,7 @@ curl http://localhost:9000/stream/01JH8X9K2MZQW3R5T7V9Y1B4D6 \
 
 ## 🛠️ Desenvolvimento
 
-### Hot Reload
+### Backend - Hot Reload
 O projeto usa Air para hot reload automático:
 
 ```bash
@@ -333,14 +420,35 @@ docker-compose up
 # O servidor reinicia automaticamente
 ```
 
-### Adicionar Dependências
+### Frontend - Desenvolvimento
+```bash
+cd frontend
+npm install
+npm run dev
+# Acesse http://localhost:5173
+```
+
+Build para produção:
+```bash
+npm run build
+```
+
+### Adicionar Dependências (Backend)
 ```bash
 docker exec -it media-server-app-1 /bin/sh
 go get github.com/alguma/lib
 ```
 
+### Adicionar Dependências (Frontend)
+```bash
+cd frontend
+npm install nome-do-pacote
+```
+
 ## 📚 Documentação
 
+- [Frontend README](frontend/README.md) - Informações sobre a interface Vue 3
+- [PERFORMANCE_OPTIMIZATIONS.md](frontend/PERFORMANCE_OPTIMIZATIONS.md) - Otimizações do frontend
 - [REFACTORING.md](REFACTORING.md) - Detalhes da refatoração
 - [ULID_MIGRATION.md](ULID_MIGRATION.md) - Migração para ULID
 - [CHANGELOG.md](CHANGELOG.md) - Histórico de mudanças
@@ -354,24 +462,27 @@ go get github.com/alguma/lib
 - [x] Progress tracking
 - [x] ULID
 - [x] Arquitetura MediaItem
+- [x] Interface Web Vue 3
 
 ### Fase 2 - Séries 🚧
-- [ ] Detecção de séries (S01E01)
-- [ ] Modelos: Series, Season, Episode
-- [ ] Scanner de séries
-- [ ] Metadata de séries
+- [x] Detecção de séries (S01E01)
+- [x] Modelos: Series, Season, Episode
+- [x] Scanner de séries
+- [ ] Metadata de séries (melhorias)
+- [ ] Interface de séries (refinamentos)
 
 ### Fase 3 - Features 📋
-- [ ] Continue Watching
+- [x] Continue Watching
 - [ ] Seleção de qualidade
 - [ ] Múltiplos providers (IMDB, TVDB)
 - [ ] Legendas (OpenSubtitles)
 - [ ] Transcodificação (FFmpeg)
+- [ ] Busca avançada
 
-### Fase 4 - Android TV 📱
+### Fase 4 - Clientes Adicionais 📱
 - [ ] App Android TV
 - [ ] ExoPlayer
-- [ ] Interface Netflix-like
+- [ ] Interface Netflix-like (mobile)
 - [ ] Chromecast
 
 ## 🤝 Contribuindo
