@@ -16,7 +16,7 @@ import type { ApiError } from '@/types/api';
  * In development: Use full URL to backend server
  * In production: Use relative URL (served from same origin)
  */
-const BASE_URL = import.meta.env.DEV ? 'http://localhost:9000' : '';
+const BASE_URL = import.meta.env.DEV ? 'http://localhost:9000/api' : '/api';
 
 /**
  * Maximum number of retry attempts for failed requests

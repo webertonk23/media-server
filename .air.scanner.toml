@@ -1,0 +1,9 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/scanner ./cmd/worker scanner"
+bin = "./tmp/scanner"
+full_bin = "./tmp/scanner scanner"
+include_ext = ["go"]
+exclude_dir = ["tmp", "vendor", "data", "media"]

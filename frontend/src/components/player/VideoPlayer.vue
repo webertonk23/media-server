@@ -1,6 +1,5 @@
 <template>
   <div class="video-player-container" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
-    <!-- Video Element -->
     <video
       ref="videoRef"
       class="video-element"
@@ -8,12 +7,10 @@
       @click="togglePlayPause"
     />
 
-    <!-- Loading Spinner -->
     <div v-if="isLoading" class="loading-overlay">
       <LoadingSpinner />
     </div>
 
-    <!-- Error Message -->
     <ErrorMessage
       v-if="error"
       :error="error"
@@ -21,7 +18,6 @@
       :onRetry="handleRetry"
     />
 
-    <!-- Player Controls -->
     <PlayerControls
       v-show="showControls && !error"
       :is-playing="playerState.isPlaying"
@@ -50,17 +46,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import ErrorMessage from '@/components/common/ErrorMessage.vue';
 import PlayerControls from './PlayerControls.vue';
 
-/**
- * VideoPlayer Component
- * 
- * Main video player component that integrates HTML5 video element with
- * custom controls, keyboard shortcuts, and progress tracking.
- * 
- * **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.4, 9.4, 17.1, 17.2, 17.3, 17.4, 17.5**
- */
-
 interface Props {
-  /** ULID of the media item to play */
   mediaId: string;
 }
 
@@ -84,14 +70,6 @@ const streamUrl = computed(() => getStreamUrl(props.mediaId));
 const showControls = ref(true);
 let hideControlsTimer: ReturnType<typeof setTimeout> | null = null;
 
-/**
- * Handle mouse move to show controls
- * 
- * Shows controls when user moves mouse and sets timer to hide them
- * after 3 seconds of inactivity.
- * 
- * **Validates: Requirements 5.4, 5.5**
- */
 const handleMouseMove = (): void => {
   showControls.value = true;
 
@@ -108,24 +86,12 @@ const handleMouseMove = (): void => {
   }, 3000);
 };
 
-/**
- * Handle mouse leave to hide controls
- * 
- * Hides controls when mouse leaves the player area during playback.
- * 
- * **Validates: Requirement 5.4**
- */
 const handleMouseLeave = (): void => {
   if (playerState.value.isPlaying) {
     showControls.value = false;
   }
 };
 
-/**
- * Toggle play/pause on video click
- * 
- * **Validates: Requirement 5.3**
- */
 const togglePlayPause = (): void => {
   if (playerState.value.isPlaying) {
     controls.pause();

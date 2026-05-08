@@ -4,6 +4,7 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"media-server/internal/config"
 	"media-server/internal/models"
@@ -102,6 +103,20 @@ func (s *LibraryService) Scan() error {
 	return s.ScanAll()
 }
 
+// StartScannerWorker inicia o loop de scan da biblioteca
+func (s *LibraryService) StartScannerWorker() {
+	log.Println("Scanner Worker iniciado. Monitorando pastas...")
+	for {
+		log.Println("Iniciando varredura da biblioteca...")
+		err := s.ScanAll()
+		if err != nil {
+			log.Printf("Erro durante varredura: %v\n", err)
+		}
+		log.Println("Varredura concluída. Aguardando 1 minuto para a próxima...")
+		time.Sleep(1 * time.Minute)
+	}
+}
+
 
 // processMovie processa um arquivo de filme
 func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
@@ -160,6 +175,7 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 		Size:        file.Size,
 		Fingerprint: file.Fingerprint,
 		Quality:     parsed.Quality,
+		Status:      models.FileStatusPending, // Inicia como pendente para o transcoder
 	}
 
 	err = s.mediaFileRepository.Create(mediaFile)
@@ -182,8 +198,14 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 
 	log.Printf("Processando série: %s S%02dE%02d\n", parsed.Title, parsed.Season, parsed.Episode)
 
+	// Buscar metadata no TMDB TV para unificar nomes (ex: Foundation vs Fundação)
+	metadata, err := s.metadataService.SearchSeries(parsed.Title, parsed.Year)
+	if err != nil {
+		log.Printf("Erro ao buscar metadata para série %s: %v\n", parsed.Title, err)
+	}
+
 	// Buscar ou criar Series (MediaItem)
-	_, seriesModel, err := s.findOrCreateSeries(parsed.Title, parsed.Year)
+	_, seriesModel, err := s.findOrCreateSeries(parsed.Title, parsed.Year, metadata)
 	if err != nil {
 		return err
 	}
@@ -226,6 +248,7 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 		Size:        file.Size,
 		Fingerprint: file.Fingerprint,
 		Quality:     parsed.Quality,
+		Status:      models.FileStatusPending,
 	}
 
 	err = s.mediaFileRepository.Create(mediaFile)
@@ -238,56 +261,72 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 }
 
 // findOrCreateSeries busca ou cria uma série
-func (s *LibraryService) findOrCreateSeries(title string, year int) (*models.MediaItem, *models.Series, error) {
-	// TODO: Buscar metadata no TMDB TV
-	// Por enquanto, buscar por título (normalizado)
+func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *SeriesMetadata) (*models.MediaItem, *models.Series, error) {
+	var mediaItem *models.MediaItem
 
-	// Buscar MediaItem existente da série
-	// Implementação simples: buscar todas as séries e comparar título
-	items, _, err := s.mediaItemRepository.Paginate(1, 100, title, models.MediaTypeSeries)
-	if err == nil && len(items) > 0 {
-		// Encontrou série com título similar
-		for _, item := range items {
-			// Comparação simples de título (pode melhorar)
-			if strings.EqualFold(item.Title, title) {
-				// Buscar Series associada
-				series, err := s.seriesRepository.FindByMediaItemID(item.ID)
-				if err == nil {
-					log.Printf("Série já existe: %s (ID: %d)\n", title, item.ID)
-					return &item, series, nil
+	// 1. Tentar buscar por TMDB ID se tiver metadata
+	if metadata != nil {
+		existing, err := s.mediaItemRepository.FindByTMDBID(metadata.TMDBID, models.MediaTypeSeries)
+		if err == nil && existing != nil {
+			mediaItem = existing
+			log.Printf("Série encontrada por TMDB ID: %s (ID: %d)\n", mediaItem.Title, mediaItem.ID)
+		}
+	}
+
+	// 2. Se não achou por ID, tentar por título exato (fallback)
+	if mediaItem == nil {
+		items, _, err := s.mediaItemRepository.Paginate(1, 10, title, models.MediaTypeSeries)
+		if err == nil && len(items) > 0 {
+			for _, item := range items {
+				if strings.EqualFold(item.Title, title) {
+					mediaItem = &item
+					log.Printf("Série encontrada por Título: %s (ID: %d)\n", mediaItem.Title, mediaItem.ID)
+					break
 				}
 			}
 		}
 	}
 
-	// Criar MediaItem da série
-	seriesMediaItem := &models.MediaItem{
-		Type:          models.MediaTypeSeries,
-		Title:         title,
-		OriginalTitle: title,
-		Year:          year,
+	// 3. Se ainda não existe, criar nova
+	if mediaItem == nil {
+		mediaItem = &models.MediaItem{
+			Type:          models.MediaTypeSeries,
+			Title:         title,
+			OriginalTitle: title,
+			Year:          year,
+		}
+
+		if metadata != nil {
+			mediaItem.Title = metadata.Title
+			mediaItem.OriginalTitle = metadata.OriginalTitle
+			mediaItem.Overview = metadata.Overview
+			mediaItem.Poster = metadata.Poster
+			mediaItem.Backdrop = metadata.Backdrop
+			mediaItem.TMDBID = metadata.TMDBID
+			mediaItem.Year = metadata.Year
+		}
+
+		err := s.mediaItemRepository.Create(mediaItem)
+		if err != nil {
+			return nil, nil, err
+		}
+		log.Printf("MediaItem da série criado: %s (ID: %d)\n", mediaItem.Title, mediaItem.ID)
 	}
 
-	err = s.mediaItemRepository.Create(seriesMediaItem)
+	// Buscar ou criar registro na tabela Series
+	seriesModel, err := s.seriesRepository.FindByMediaItemID(mediaItem.ID)
 	if err != nil {
-		return nil, nil, err
+		seriesModel = &models.Series{
+			MediaItemID: mediaItem.ID,
+		}
+		err = s.seriesRepository.Create(seriesModel)
+		if err != nil {
+			return nil, nil, err
+		}
+		log.Printf("Registro Series criado para MediaItem %d\n", mediaItem.ID)
 	}
 
-	log.Printf("MediaItem da série criado: %s (ID: %d)\n", title, seriesMediaItem.ID)
-
-	// Criar Series
-	seriesModel := &models.Series{
-		MediaItemID: seriesMediaItem.ID,
-	}
-
-	err = s.seriesRepository.Create(seriesModel)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	log.Printf("Series criada (ID: %d)\n", seriesModel.ID)
-
-	return seriesMediaItem, seriesModel, nil
+	return mediaItem, seriesModel, nil
 }
 
 

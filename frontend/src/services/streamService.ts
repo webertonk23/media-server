@@ -9,9 +9,10 @@
 
 /**
  * Base URL for the backend API
- * The Go Fiber server runs on port 9000
+ * In development: Use full URL to backend server
+ * In production: Use relative URL (served from same origin)
  */
-const BACKEND_BASE_URL = 'http://localhost:9000';
+const BACKEND_BASE_URL = import.meta.env.DEV ? 'http://localhost:9000/api' : '/api';
 
 /**
  * Get the streaming URL for a specific media item
@@ -27,8 +28,8 @@ const BACKEND_BASE_URL = 'http://localhost:9000';
  * @example
  * ```typescript
  * const streamUrl = getStreamUrl('01HQXYZ123ABC456DEF789GHI');
- * // Returns: 'http://localhost:9000/stream/01HQXYZ123ABC456DEF789GHI'
- * 
+ * // Returns: 'http://localhost:9000/api/stream/01HQXYZ123ABC456DEF789GHI' (in dev)
+ * ```
  * // Use with HTML5 video element
  * videoElement.src = getStreamUrl(mediaId);
  * ```

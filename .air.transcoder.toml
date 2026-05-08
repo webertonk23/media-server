@@ -1,0 +1,9 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/transcoder ./cmd/worker transcoder"
+bin = "./tmp/transcoder"
+full_bin = "./tmp/transcoder transcoder"
+include_ext = ["go"]
+exclude_dir = ["tmp", "vendor", "data", "media"]

@@ -3,19 +3,24 @@ services:
     build:
       context: .
       dockerfile: docker/go/Dockerfile
-
     container_name: media-server
-
     working_dir: /app
-
     volumes:
       - ./:/app
-
     ports:
       - "9000:9000"
-
-    stdin_open: true
-    tty: true
-
+    environment:
+      # --- CONFIGURAÇÃO PARA RASPBERRY PI 3 ---
+      # Para Pi 3 use: h264_v4l2m2m
+      # Para N100 use: h264_qsv
+      # Para Software use: libx264
+      - TRANSCODE_CODEC=h264_v4l2m2m
+      - TRANSCODE_PRESET=fast
+    # devices:
+      # Necessário para acessar o chip de vídeo da Pi 3 (aceleração de hardware)
+      #- /dev/video10:/dev/video10
+      #- /dev/video11:/dev/video11
+      #- /dev/video12:/dev/video12
+    restart: unless-stopped
     env_file:
       - .env

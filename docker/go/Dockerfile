@@ -1,11 +1,12 @@
 FROM golang:1.25-alpine
 
-WORKDIR /app
-
 RUN apk add --no-cache \
+    ffmpeg \
     git \
     gcc \
     musl-dev
+
+WORKDIR /app
 
 RUN go install github.com/air-verse/air@latest
 

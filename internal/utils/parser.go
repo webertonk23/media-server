@@ -37,23 +37,37 @@ var garbageTokens = []string{
 }
 
 func ParseMovieFilename(path string) ParsedMovie {
-
 	filename := filepath.Base(path)
-
 	ext := filepath.Ext(filename)
+	cleanName := strings.TrimSuffix(filename, ext)
 
-	filename = strings.TrimSuffix(filename, ext)
+	// 1. Extrair qualidade do nome original
+	quality := extractQuality(cleanName)
 
-	year := extractYear(filename)
+	// 2. Tentar encontrar o ano e separar o título
+	// O padrão mais comum é Titulo.Ano.Metadata
+	reYear := regexp.MustCompile(`(?i)[.\s\(\[]+(19\d{2}|20\d{2})[.\s\)\]]*`)
+	loc := reYear.FindStringIndex(cleanName)
 
-	quality := extractQuality(filename)
+	var title string
+	var year int
 
-	title := removeYear(filename)
+	if loc != nil {
+		// Título é tudo antes do ano
+		title = cleanName[:loc[0]]
+		
+		// Extrair o ano do match
+		yearMatch := reYear.FindStringSubmatch(cleanName[loc[0]:loc[1]])
+		if len(yearMatch) > 1 {
+			year, _ = strconv.Atoi(yearMatch[1])
+		}
+	} else {
+		// Fallback se não achar ano: remover tokens conhecidos
+		title = removeGarbage(cleanName)
+	}
 
-	title = removeGarbage(title)
-
+	// 3. Limpeza final do título
 	title = normalizeSeparators(title)
-
 	title = cleanSpaces(title)
 
 	return ParsedMovie{

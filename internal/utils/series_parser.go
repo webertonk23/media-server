@@ -16,153 +16,107 @@ type ParsedSeries struct {
 	IsSeries bool
 }
 
-// Tokens de release que devem ser removidos ANTES de processar o título
-var releaseTokens = []string{
-	// Qualidade
-	"2160p", "1080p", "720p", "480p", "360p", "4k", "uhd", "hd",
-	// Codec
-	"x264", "x265", "h264", "h265", "hevc", "avc", "xvid", "x", "h",
-	// Source
-	"web-dl", "web dl", "webrip", "web rip", "bluray", "blu ray",
-	"brrip", "bdrip", "dvdrip", "hdtv", "hdcam", "cam", "ts",
-	// Audio
-	"dual", "aac", "ac3", "dts", "5 1", "7 1", "2 0", "atmos",
-	// Outros
-	"compacto", "extended", "repack", "proper", "unrated", "directors cut",
-	// Grupos de release (adicione mais conforme necessário)
-	"starckfilmes", "sf", "yify", "rarbg", "etrg", "yts", "amzn", "nf", "netflix",
-	"errai-raws", "avc-yuv444p10",
+// ParseSeriesFilename tenta detectar se é uma série e extrair informações
+func extractSeasonEpisodeWithLoc(value string) (season int, episode int, loc []int, found bool) {
+	// 1. Limpar tags entre colchetes no início (comum em animes)
+	// Ex: [Erai-raws] Made in Abyss - 01 -> Made in Abyss - 01
+	reBrackets := regexp.MustCompile(`^\[[^\]]+\]\s*`)
+	tagLoc := reBrackets.FindStringIndex(value)
+	searchTarget := value
+	offset := 0
+	if tagLoc != nil {
+		searchTarget = value[tagLoc[1]:]
+		offset = tagLoc[1]
+	}
+
+	patterns := []string{
+		// S01E01, S1E1
+		`(?i)[.\s\(\[]*[Ss](\d{1,2})[Ee](\d{1,3})`,
+		// 1x01, 1x1
+		`(?i)[.\s\(\[]*(\d{1,2})[xX](\d{1,3})`,
+		// - 01 (Hyphenated anime style)
+		`(?i)[.\s\(\[]*-\s*(\d{1,4})`,
+		// E1066 (Anime style)
+		`(?i)[.\s\(\[]*[Ee](\d{2,4})`,
+		// Season 1 Episode 1
+		`(?i)[.\s\(\[]*[Ss]eason\s*(\d{1,2})\s*[Ee]pisode\s*(\d{1,3})`,
+	}
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		matchLoc := re.FindStringIndex(searchTarget)
+		if matchLoc != nil {
+			matches := re.FindStringSubmatch(searchTarget[matchLoc[0]:matchLoc[1]])
+			if len(matches) >= 3 {
+				season, _ = strconv.Atoi(matches[1])
+				episode, _ = strconv.Atoi(matches[2])
+				found = true
+				loc = []int{matchLoc[0] + offset, matchLoc[1] + offset}
+				return
+			} else if len(matches) == 2 {
+				// Caso E1066 ou - 01
+				season = 1 // Default
+				episode, _ = strconv.Atoi(matches[1])
+				found = true
+				loc = []int{matchLoc[0] + offset, matchLoc[1] + offset}
+				return
+			}
+		}
+	}
+
+	return 0, 0, nil, false
 }
 
-// ParseSeriesFilename tenta detectar se é uma série e extrair informações
 func ParseSeriesFilename(path string) ParsedSeries {
 	filename := filepath.Base(path)
 	dirName := filepath.Base(filepath.Dir(path))
 	ext := filepath.Ext(filename)
-	filename = strings.TrimSuffix(filename, ext)
+	cleanName := strings.TrimSuffix(filename, ext)
+
+	// 1. Detectar padrões de série e pegar a localização
+	season, episode, loc, found := extractSeasonEpisodeWithLoc(cleanName)
+	if !found {
+		return ParsedSeries{IsSeries: false}
+	}
 
 	result := ParsedSeries{
-		IsSeries: false,
+		IsSeries: true,
+		Season:   season,
+		Episode:  episode,
 	}
 
-	// Detectar padrões de série
-	season, episode, found := extractSeasonEpisode(filename)
-	if !found {
-		return result
-	}
+	// 2. Título é tudo antes do marcador de S/E
+	titleRaw := cleanName[:loc[0]]
 
-	result.IsSeries = true
-	result.Season = season
-	result.Episode = episode
+	// 3. Remover tags entre colchetes do título (ex: [Erai-raws])
+	reBrackets := regexp.MustCompile(`\[[^\]]+\]`)
+	titleRaw = reBrackets.ReplaceAllString(titleRaw, "")
 
-	// Extrair qualidade
-	result.Quality = extractQuality(filename)
-
-	// Extrair ano (tentar no filename primeiro, depois no diretório)
-	result.Year = extractYear(filename)
+	// 4. Extrair qualidade e ano
+	result.Quality = extractQuality(cleanName)
+	result.Year = extractYear(cleanName)
 	if result.Year == 0 {
 		result.Year = extractYear(dirName)
 	}
 
-	// Extrair título
-	// 1. Normalizar separadores PRIMEIRO (. e _ para espaço)
-	title := normalizeSeparators(filename)
+	// 5. Se o título cru contém o ano, remover o ano e o que vem depois dele
+	reYear := regexp.MustCompile(`(?i)[.\s\(\[]+(19\d{2}|20\d{2})[.\s\)\]]*`)
+	yearLoc := reYear.FindStringIndex(titleRaw)
+	if yearLoc != nil {
+		titleRaw = titleRaw[:yearLoc[0]]
+	}
 
-	// 2. Remover season/episode
-	title = removeSeasonEpisode(title)
-
-	// 3. Remover ano
-	title = removeYear(title)
-
-	// 4. Remover tokens de release (agora que os pontos viraram espaços)
-	title = removeReleaseTokens(title)
-
-	// 5. Limpar espaços e capitalizar
+	// 6. Limpeza final
+	title := normalizeSeparators(titleRaw)
 	title = cleanSpaces(title)
-
 	result.Title = title
 
 	return result
 }
 
-// extractSeasonEpisode detecta vários padrões de season/episode
-func extractSeasonEpisode(value string) (season int, episode int, found bool) {
-	patterns := []string{
-		// S01E01, S1E1
-		`[Ss](\d{1,2})[Ee](\d{1,3})`,
-		// 1x01, 1x1
-		`(\d{1,2})[xX](\d{1,3})`,
-		// Season 1 Episode 1
-		`[Ss]eason\s*(\d{1,2})\s*[Ee]pisode\s*(\d{1,3})`,
-		// 101, 1001 (season 1 episode 1, season 10 episode 1)
-		`^(\d{1,2})(\d{2})$`,
-	}
-
-	for _, pattern := range patterns {
-		re := regexp.MustCompile(pattern)
-		matches := re.FindStringSubmatch(value)
-
-		if len(matches) >= 3 {
-			season, _ = strconv.Atoi(matches[1])
-			episode, _ = strconv.Atoi(matches[2])
-			found = true
-			return
-		}
-	}
-
-	return 0, 0, false
-}
-
-// removeSeasonEpisode remove padrões de season/episode do título
-func removeSeasonEpisode(value string) string {
-	patterns := []string{
-		`[Ss]\d{1,2}[Ee]\d{1,3}`,
-		`\d{1,2}[xX]\d{1,3}`,
-		`[Ss]eason\s*\d{1,2}\s*[Ee]pisode\s*\d{1,3}`,
-		`^\d{3,4}$`, // Remove números como 101, 1001 apenas se for o texto todo
-	}
-
-	result := value
-	for _, pattern := range patterns {
-		re := regexp.MustCompile(pattern)
-		result = re.ReplaceAllString(result, " ")
-	}
-
-	return result
-}
-
-// removeReleaseTokens remove tokens de release do título
-func removeReleaseTokens(value string) string {
-	lower := strings.ToLower(value)
-
-	for _, token := range releaseTokens {
-		// Usar word boundary para evitar remover partes de palavras
-		re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(token) + `\b`)
-		lower = re.ReplaceAllString(lower, " ")
-	}
-
-	// Remover números soltos (1, 2, 3, etc) que sobraram
-	re := regexp.MustCompile(`\s+\d+\s+`)
-	lower = re.ReplaceAllString(lower, " ")
-
-	// Remover números no final
-	re = regexp.MustCompile(`\s+\d+$`)
-	lower = re.ReplaceAllString(lower, "")
-
-	// Remover letras ASCII soltas (p, x, etc) no meio de espaços
-	re = regexp.MustCompile(`\s+[a-z]\s+`)
-	lower = re.ReplaceAllString(lower, " ")
-
-	// Remover letras ASCII soltas no final
-	re = regexp.MustCompile(`\s+[a-z]$`)
-	lower = re.ReplaceAllString(lower, "")
-
-	return lower
-}
-
 // IsSeriesPath verifica se o caminho parece ser de uma série
 func IsSeriesPath(path string) bool {
 	filename := filepath.Base(path)
-	_, _, found := extractSeasonEpisode(filename)
+	_, _, _, found := extractSeasonEpisodeWithLoc(filename)
 	return found
 }

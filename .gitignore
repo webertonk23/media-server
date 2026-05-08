@@ -10,8 +10,9 @@
 data/
 
 # Media files
-media/
+/media/
 cache/
+!frontend/src/components/media/
 
 # Binários e builds
 tmp/

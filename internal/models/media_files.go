@@ -8,11 +8,18 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	FileStatusPending    = "pending"
+	FileStatusProcessing = "transcoding"
+	FileStatusCompleted  = "completed"
+	FileStatusError      = "error"
+)
+
 type MediaFile struct {
 	ID   uint   `gorm:"primaryKey"`
 	ULID string `gorm:"column:ulid;uniqueIndex;size:26;not null"`
 
-	MediaItemID uint   `gorm:"index;not null"`
+	MediaItemID uint      `gorm:"index;not null"`
 	MediaItem   MediaItem `gorm:"foreignKey:MediaItemID"`
 
 	Path string `gorm:"uniqueIndex;size:1000;not null"`
@@ -22,6 +29,11 @@ type MediaFile struct {
 	Fingerprint string `gorm:"index;size:64;not null"`
 
 	Quality string `gorm:"size:20"`
+
+	Status       string `gorm:"index;size:20;default:pending"`
+	OriginalPath string `gorm:"size:1000"`
+	ErrorMessage string `gorm:"type:text"`
+	RetryCount   int    `gorm:"default:0"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

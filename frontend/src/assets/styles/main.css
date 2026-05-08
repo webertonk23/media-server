@@ -25,6 +25,11 @@
   --color-cinema-accent-primary-hover: #f40612;
   --color-cinema-accent-secondary: #f5c518;
   --color-cinema-accent-tertiary: #00d4ff;
+
+  /* Aliases for compatibility */
+  --color-accent: var(--color-cinema-accent-primary);
+  --color-accent-hover: var(--color-cinema-accent-primary-hover);
+  --color-accent-glow: rgba(229, 9, 20, 0.4);
   
   /* Text colors with hierarchy */
   --color-cinema-text-primary: #ffffff;
@@ -50,6 +55,10 @@
      Requirements: 10.1, 10.2, 10.3, 10.4
      ============================================ */
   
+  /* Sidebar */
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 72px;
+
   /* Custom spacing for media grids */
   --spacing-grid-gap: 1rem;
   --spacing-grid-gap-lg: 1.5rem;
