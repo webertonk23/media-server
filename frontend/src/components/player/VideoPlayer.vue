@@ -28,7 +28,7 @@
       :is-fullscreen="playerState.isFullscreen"
       @play="controls.play"
       @pause="controls.pause"
-      @seek="controls.seek"
+      @seek="handleSeek"
       @volume="controls.setVolume"
       @toggle-mute="toggleMute"
       @toggle-fullscreen="controls.toggleFullscreen"
@@ -42,6 +42,7 @@ import { usePlayerStore } from '@/stores/playerStore';
 import { useVideoPlayer } from '@/composables/useVideoPlayer';
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts';
 import { getStreamUrl } from '@/services/streamService';
+import type { MediaFile } from '@/types/media';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
 import ErrorMessage from '@/components/common/ErrorMessage.vue';
 import PlayerControls from './PlayerControls.vue';
@@ -57,28 +58,27 @@ const playerStore = usePlayerStore();
 const videoRef = ref<HTMLVideoElement | null>(null);
 const { controls, isLoading, error, toggleMute } = useVideoPlayer(videoRef);
 
-// Enable keyboard shortcuts
 useKeyboardShortcuts(controls);
 
-// Player state
 const playerState = computed(() => playerStore.playerState);
 
-// Stream URL
-const streamUrl = computed(() => getStreamUrl(props.mediaId));
+const streamUrl = ref(getStreamUrl(props.mediaId));
+const needsTranscoding = computed(() => {
+  const media = playerStore.currentMedia;
+  if (!media) return false;
+  return !media.files?.some((f: MediaFile) => f.path.toLowerCase().endsWith('.mp4') && f.status === 'completed');
+});
 
-// Controls visibility
 const showControls = ref(true);
 let hideControlsTimer: ReturnType<typeof setTimeout> | null = null;
 
 const handleMouseMove = (): void => {
   showControls.value = true;
 
-  // Clear existing timer
   if (hideControlsTimer) {
     clearTimeout(hideControlsTimer);
   }
 
-  // Hide controls after 3 seconds of inactivity
   hideControlsTimer = setTimeout(() => {
     if (playerState.value.isPlaying) {
       showControls.value = false;
@@ -100,38 +100,44 @@ const togglePlayPause = (): void => {
   }
 };
 
-/**
- * Handle retry after error
- * 
- * Reloads the video element to retry playback.
- * 
- * **Validates: Requirement 9.4**
- */
 const handleRetry = (): void => {
   if (videoRef.value) {
     videoRef.value.load();
   }
 };
 
-/**
- * Load saved progress and initialize player
- * 
- * Initializes the player store which fetches media details and saved progress.
- * The useVideoPlayer composable will automatically seek to the saved position
- * when the video metadata loads.
- * 
- * **Validates: Requirements 6.4, 17.1**
- */
 onMounted(async () => {
   try {
-    // Initialize player with media ID (this also loads saved progress)
+
     await playerStore.initializePlayer(props.mediaId);
-    console.debug('[VideoPlayer] Player initialized with saved progress:', playerStore.savedProgress);
+
+    if (needsTranscoding.value && playerStore.savedProgress) {
+      const position = playerStore.savedProgress.position;
+      if (position > 0) {
+        console.debug('[VideoPlayer] Starting on-the-fly stream from:', position);
+        streamUrl.value = getStreamUrl(props.mediaId, position);
+      }
+    }
+    
+    console.debug('[VideoPlayer] Player initialized. Needs transcoding:', needsTranscoding.value);
   } catch (err: any) {
     console.error('[VideoPlayer] Failed to initialize player:', err);
-    // Don't show error to user - just start from beginning
   }
 });
+
+const handleSeek = (time: number) => {
+  if (needsTranscoding.value) {
+    console.debug('[VideoPlayer] Reloading stream for seek to:', time);
+    streamUrl.value = getStreamUrl(props.mediaId, time);
+    setTimeout(() => {
+      if (videoRef.value) {
+        videoRef.value.play().catch(e => console.warn('[VideoPlayer] Play after seek failed:', e));
+      }
+    }, 100);
+  } else {
+    controls.seek(time);
+  }
+};
 </script>
 
 <style scoped>
@@ -164,7 +170,6 @@ onMounted(async () => {
   z-index: 10;
 }
 
-/* Fullscreen styles */
 .video-player-container:fullscreen {
   width: 100vw;
   height: 100vh;

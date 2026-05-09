@@ -1,12 +1,10 @@
 <template>
   <PlayerLayout>
-    <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <LoadingSpinner size="large" />
       <p class="loading-text">Carregando player...</p>
     </div>
 
-    <!-- Error State -->
     <ErrorMessage
       v-else-if="error"
       :error="error"
@@ -14,12 +12,10 @@
       :onRetry="handleRetry"
     />
 
-    <!-- Video Player -->
     <div v-else-if="media" class="player-container">
       <VideoPlayer :media-id="props.id" />
     </div>
 
-    <!-- Not Found State -->
     <div v-else class="not-found-container">
       <h1 class="not-found-title">Mídia não encontrada</h1>
       <p class="not-found-message">A mídia solicitada não foi encontrada.</p>
@@ -31,14 +27,6 @@
 </template>
 
 <script setup lang="ts">
-/**
- * PlayerPage Component
- * 
- * Full-screen video player page with minimal layout.
- * Initializes player store, loads media, and handles cleanup on unmount.
- * 
- * **Validates: Requirements 1.3, 5.1, 5.2, 6.1, 6.2**
- */
 
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
@@ -49,11 +37,6 @@ import VideoPlayer from '@/components/player/VideoPlayer.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import ErrorMessage from '@/components/common/ErrorMessage.vue'
 
-/**
- * Props
- * 
- * Receives media ID from route params via props: true in router config
- */
 interface Props {
   id: string
 }
@@ -63,21 +46,11 @@ const props = defineProps<Props>()
 const router = useRouter()
 const playerStore = usePlayerStore()
 
-// State
 const loading = ref(false)
 const error = ref<string | null>(null)
 
-// Computed properties
 const media = computed(() => playerStore.currentMedia)
 
-/**
- * Initialize player
- * 
- * Initializes player store with media ID, which loads media details
- * and any saved progress.
- * 
- * **Validates: Requirements 5.1, 5.2, 6.1**
- */
 const initializePlayer = async () => {
   loading.value = true
   error.value = null
@@ -85,7 +58,6 @@ const initializePlayer = async () => {
   console.log('Initializing player for media:', props.id)
 
   try {
-    // Initialize player store (loads media and progress)
     await playerStore.initializePlayer(props.id)
   } catch (err: any) {
     error.value = err.message || 'Failed to initialize player'
@@ -95,20 +67,11 @@ const initializePlayer = async () => {
   }
 }
 
-/**
- * Handle retry after error
- * 
- * Retries initializing the player after an error.
- */
+
 const handleRetry = () => {
   initializePlayer()
 }
 
-/**
- * Go back to previous page
- * 
- * Navigates back in browser history or to home page if no history.
- */
 const goBack = () => {
   if (window.history.length > 1) {
     router.back()
@@ -117,32 +80,22 @@ const goBack = () => {
   }
 }
 
-/**
- * Cleanup on unmount
- * 
- * Saves progress immediately and clears player state when leaving the page.
- * 
- * **Validates: Requirements 6.1, 6.2**
- */
 const cleanup = async () => {
   try {
-    // Save progress immediately before leaving
     await playerStore.saveProgressImmediate()
     console.debug('[PlayerPage] Progress saved on unmount')
   } catch (err) {
     console.error('[PlayerPage] Failed to save progress on unmount:', err)
   } finally {
-    // Clear player state
+
     playerStore.clearPlayer()
   }
 }
 
-// Initialize player on mount
 onMounted(() => {
   initializePlayer()
 })
 
-// Cleanup on unmount
 onBeforeUnmount(() => {
   cleanup()
 })

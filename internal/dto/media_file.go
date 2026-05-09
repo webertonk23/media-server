@@ -14,6 +14,7 @@ type MediaFileResponse struct {
 	OriginalPath string    `json:"original_path,omitempty"`
 	ErrorMessage string    `json:"error_message,omitempty"`
 	RetryCount   int       `json:"retry_count"`
+	Duration     float64   `json:"duration"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

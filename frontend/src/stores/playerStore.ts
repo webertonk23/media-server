@@ -33,10 +33,10 @@ export const usePlayerStore = defineStore('player', () => {
 
       if (progress) {
         playerState.value.currentTime = progress.position;
-        playerState.value.duration = progress.duration;
+        playerState.value.duration = media.duration || progress.duration;
       } else {
         playerState.value.currentTime = 0;
-        playerState.value.duration = 0;
+        playerState.value.duration = media.duration || 0;
       }
 
       playerState.value.isPlaying = false;
@@ -45,6 +45,7 @@ export const usePlayerStore = defineStore('player', () => {
       console.debug('[Player Store] Initialized player:', {
         mediaId,
         title: media.title,
+        duration: playerState.value.duration,
         hasProgress: !!progress,
         startPosition: progress?.position || 0,
       });
@@ -98,8 +99,8 @@ export const usePlayerStore = defineStore('player', () => {
     const finished = progressPercentage >= COMPLETION_THRESHOLD;
 
     const progressData: ProgressData = {
-      position: playerState.value.currentTime,
-      duration: playerState.value.duration,
+      position: Math.round(playerState.value.currentTime),
+      duration: Math.round(playerState.value.duration),
       finished,
     };
 
@@ -159,4 +160,3 @@ export const usePlayerStore = defineStore('player', () => {
     clearPlayer,
   };
 });
-

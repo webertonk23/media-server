@@ -6,10 +6,10 @@ const PROGRESS_SAVE_INTERVAL = 10000;
 
 export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
   const playerStore = usePlayerStore();
-  
+
   const isLoading = ref(true);
   const error = ref<string | null>(null);
-  
+
   let progressTimer: ReturnType<typeof setInterval> | null = null;
 
   const play = async (): Promise<void> => {
@@ -37,7 +37,7 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
     videoElement.value.pause();
     playerStore.updatePlayerState({ isPlaying: false });
     stopProgressTracking();
-    
+
     playerStore.saveProgressImmediate();
   };
 
@@ -47,11 +47,12 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
       return;
     }
 
-    const clampedTime = Math.max(0, Math.min(time, videoElement.value.duration || 0));
+    const duration = videoElement.value.duration !== Infinity ? videoElement.value.duration : playerStore.playerState.duration;
+    const clampedTime = Math.max(0, Math.min(time, duration || 0));
     videoElement.value.currentTime = clampedTime;
-    
+
     playerStore.updatePlayerState({ currentTime: clampedTime });
-    
+
     playerStore.saveProgressImmediate();
   };
 
@@ -63,12 +64,12 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
 
     const clampedVolume = Math.max(0, Math.min(1, volume));
     videoElement.value.volume = clampedVolume;
-    
+
     if (clampedVolume > 0 && videoElement.value.muted) {
       videoElement.value.muted = false;
       playerStore.updatePlayerState({ isMuted: false });
     }
-    
+
     playerStore.updatePlayerState({ volume: clampedVolume });
   };
 
@@ -105,13 +106,13 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
 
   const startProgressTracking = (): void => {
     stopProgressTracking();
-    
+
     progressTimer = setInterval(() => {
       if (videoElement.value && !videoElement.value.paused) {
         playerStore.saveProgress();
       }
     }, PROGRESS_SAVE_INTERVAL);
-    
+
     console.debug('[useVideoPlayer] Progress tracking started');
   };
 
@@ -125,42 +126,67 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
 
   const handleTimeUpdate = (): void => {
     if (!videoElement.value) return;
-    
+
+    let currentTime = videoElement.value.currentTime;
+    try {
+      const url = new URL(videoElement.value.src, window.location.origin);
+      const startParam = url.searchParams.get('start');
+      if (startParam) {
+        currentTime += parseFloat(startParam);
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+
     playerStore.updatePlayerState({
-      currentTime: videoElement.value.currentTime,
+      currentTime: currentTime,
     });
   };
 
   const handleLoadedMetadata = (): void => {
     if (!videoElement.value) return;
-    
+
     const duration = videoElement.value.duration;
-    playerStore.updatePlayerState({ duration });
-    
+    if (duration && duration !== Infinity && duration > 0 && playerStore.playerState.duration === 0) {
+      playerStore.updatePlayerState({ duration });
+      console.debug('[useVideoPlayer] Duration updated from metadata:', duration);
+    } else {
+      console.debug('[useVideoPlayer] Keeping store duration:', playerStore.playerState.duration);
+    }
+
     const savedProgress = playerStore.savedProgress;
     if (savedProgress && savedProgress.position > 0) {
-      videoElement.value.currentTime = savedProgress.position;
-      console.debug('[useVideoPlayer] Resumed from saved progress:', savedProgress.position);
+      try {
+        const url = new URL(videoElement.value.src, window.location.origin);
+        if (!url.searchParams.has('start')) {
+          videoElement.value.currentTime = savedProgress.position;
+          console.debug('[useVideoPlayer] Resumed from saved progress:', savedProgress.position);
+        } else {
+          console.debug('[useVideoPlayer] Stream already started at offset, skipping initial seek');
+        }
+      } catch (e) {
+        videoElement.value.currentTime = savedProgress.position;
+      }
     }
-    
+
     isLoading.value = false;
   };
 
   const handleEnded = (): void => {
     playerStore.updatePlayerState({ isPlaying: false });
     stopProgressTracking();
-    
+
     playerStore.saveProgressImmediate();
-    
+
     console.debug('[useVideoPlayer] Video playback ended');
   };
 
   const handleError = (): void => {
     if (!videoElement.value) return;
-    
+
     const videoError = videoElement.value.error;
     let errorMessage = 'Failed to load video';
-    
+
     if (videoError) {
       switch (videoError.code) {
         case MediaError.MEDIA_ERR_ABORTED:
@@ -179,10 +205,10 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
           errorMessage = 'Unknown video error';
       }
     }
-    
+
     error.value = errorMessage;
     isLoading.value = false;
-    
+
     console.error('[useVideoPlayer] Video error:', errorMessage, videoError);
   };
 
@@ -211,50 +237,50 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
 
   const attachEventListeners = (): void => {
     if (!videoElement.value) return;
-    
+
     const video = videoElement.value;
-    
+
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('ended', handleEnded);
     video.addEventListener('timeupdate', handleTimeUpdate);
-    
+
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('waiting', handleWaiting);
     video.addEventListener('canplay', handleCanPlay);
-    
+
     video.addEventListener('error', handleError);
-    
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    
+
     console.debug('[useVideoPlayer] Event listeners attached');
   };
 
   const detachEventListeners = (): void => {
     if (!videoElement.value) return;
-    
+
     const video = videoElement.value;
-    
+
     video.removeEventListener('play', handlePlay);
     video.removeEventListener('pause', handlePause);
     video.removeEventListener('ended', handleEnded);
     video.removeEventListener('timeupdate', handleTimeUpdate);
-    
+
     video.removeEventListener('loadedmetadata', handleLoadedMetadata);
     video.removeEventListener('waiting', handleWaiting);
     video.removeEventListener('canplay', handleCanPlay);
-    
+
     video.removeEventListener('error', handleError);
-    
+
     document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    
+
     console.debug('[useVideoPlayer] Event listeners detached');
   };
 
   onMounted(() => {
     if (videoElement.value) {
       attachEventListeners();
-      
+
       const { volume, isMuted } = playerStore.playerState;
       videoElement.value.volume = volume;
       videoElement.value.muted = isMuted;
@@ -264,7 +290,7 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
   onUnmounted(() => {
     detachEventListeners();
     stopProgressTracking();
-    
+
     if (videoElement.value && !videoElement.value.paused) {
       playerStore.saveProgressImmediate();
     }
@@ -285,4 +311,3 @@ export function useVideoPlayer(videoElement: Ref<HTMLVideoElement | null>) {
     toggleMute,
   };
 }
-

@@ -18,6 +18,7 @@ func ToMediaFileResponse(file models.MediaFile) dto.MediaFileResponse {
 		OriginalPath: file.OriginalPath,
 		ErrorMessage: file.ErrorMessage,
 		RetryCount:   file.RetryCount,
+		Duration:     file.Duration,
 		CreatedAt:    file.CreatedAt,
 		UpdatedAt:    file.UpdatedAt,
 	}

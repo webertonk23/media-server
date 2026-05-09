@@ -1,13 +1,10 @@
 <template>
   <div class="media-details">
-    <!-- Back button -->
     <button class="back-btn" @click="$emit('back')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="15 18 9 12 15 6"/>
       </svg>
     </button>
-
-    <!-- Backdrop -->
     <div class="details-backdrop">
       <img
         v-if="media.backdrop"
@@ -18,12 +15,8 @@
       <div v-else class="backdrop-fallback"></div>
       <div class="backdrop-gradient"></div>
     </div>
-
-    <!-- Main content -->
     <div class="details-body">
-      <!-- Left: Poster + Info -->
       <div class="details-left">
-        <!-- Poster -->
         <div class="poster-wrap">
           <img
             v-if="media.poster"
@@ -37,12 +30,8 @@
             </svg>
           </div>
         </div>
-
-        <!-- Info section -->
         <div class="details-info">
           <h1 class="details-title">{{ media.title }}</h1>
-
-          <!-- Meta row -->
           <div class="details-meta">
             <span v-if="media.year" class="meta-year">{{ media.year }}</span>
             <span v-if="media.year" class="meta-sep">•</span>
@@ -52,11 +41,8 @@
             <span v-if="media.quality" class="meta-sep">•</span>
             <span v-if="media.quality" class="meta-quality">{{ media.quality }}</span>
           </div>
-
-          <!-- Overview -->
           <p v-if="media.overview" class="details-overview">{{ media.overview }}</p>
 
-          <!-- Progress bar if in progress -->
           <div v-if="progress && !progress.finished" class="progress-section">
             <div class="progress-track">
               <div class="progress-fill" :style="{ width: `${progressPct}%` }"></div>
@@ -66,7 +52,6 @@
             </span>
           </div>
 
-          <!-- Action buttons -->
           <div class="action-btns">
             <button class="btn btn-primary action-play" @click="handleAction">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -83,7 +68,6 @@
             </button>
           </div>
 
-          <!-- Metadata table -->
           <div v-if="mediaMeta.length > 0" class="meta-table">
             <div v-for="row in mediaMeta" :key="row.label" class="meta-row">
               <span class="meta-label">{{ row.label }}</span>
@@ -92,10 +76,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Right: Mini Player area -->
       <div class="details-right">
-        <!-- Thumbnail / Player area -->
         <div class="mini-player-area">
           <img
             v-if="media.backdrop"
@@ -109,7 +90,6 @@
               <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <!-- Play overlay -->
           <div class="mini-player-overlay" @click="handleAction">
             <div class="mini-play-btn">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -117,13 +97,12 @@
               </svg>
             </div>
           </div>
-          <!-- Duration badge -->
+
           <div v-if="progress" class="mini-progress-bar">
             <div class="mini-progress-fill" :style="{ width: `${progressPct}%` }"></div>
           </div>
         </div>
 
-        <!-- Title in right panel -->
         <div class="right-panel-info">
           <h2 class="right-title">{{ media.title }}</h2>
           <div class="right-meta">
@@ -136,7 +115,6 @@
           <p v-if="media.overview" class="right-overview">{{ media.overview }}</p>
         </div>
 
-        <!-- Quick action buttons for right panel -->
         <div class="right-actions">
           <button class="btn btn-primary right-play-btn" @click="handleAction">
             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -159,7 +137,6 @@
           </button>
         </div>
 
-        <!-- Details table (right side) -->
         <div class="right-meta-table" v-if="mediaMeta.length > 0">
           <div v-for="row in mediaMeta" :key="row.label" class="right-meta-row">
             <span class="right-meta-label">{{ row.label }}</span>
@@ -169,7 +146,6 @@
       </div>
     </div>
 
-    <!-- Seasons and Episodes Section -->
     <div v-if="media.type === 'series' && seasons && seasons.length > 0" class="episodes-section">
       <div class="episodes-header">
         <h2 class="episodes-title">Episódios</h2>
@@ -295,7 +271,6 @@ const mediaMeta = computed(() => {
   min-height: 100vh;
 }
 
-/* Back button */
 .back-btn {
   position: absolute;
   top: 1.25rem;
@@ -321,7 +296,6 @@ const mediaMeta = computed(() => {
 
 .back-btn svg { width: 1.25rem; height: 1.25rem; }
 
-/* Backdrop */
 .details-backdrop {
   position: absolute;
   top: 0;
@@ -356,7 +330,6 @@ const mediaMeta = computed(() => {
   );
 }
 
-/* Body */
 .details-body {
   position: relative;
   z-index: 10;
@@ -369,7 +342,6 @@ const mediaMeta = computed(() => {
   margin: 0 auto;
 }
 
-/* LEFT panel */
 .details-left {
   display: flex;
   gap: 1.75rem;

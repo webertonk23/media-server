@@ -23,11 +23,13 @@ func Setup(app *fiber.App) {
 	api.Post("/scan/movies", handlers.ScanMovies)
 	api.Post("/scan/series", handlers.ScanSeries)
 
-	api.Get("/media", handlers.GetMediaItems)
-	api.Get("/media/:id", handlers.GetMediaItemByID)
 	api.Get("/movies", handlers.GetMovies)
 	api.Get("/series", handlers.GetSeries)
+	api.Get("/media/continue-watching", handlers.GetContinueWatching)
+	api.Get("/media", handlers.GetMediaItems)
+	api.Get("/media/:id", handlers.GetMediaItemByID)
 	api.Get("/stream/:id", handlers.StreamMedia)
+	api.Get("/progress/:id", handlers.GetProgress)
 	api.Post("/progress/:id", handlers.UpdateProgress)
 
 	api.Get("/series/:id/seasons", handlers.GetSeriesSeasons)
@@ -38,18 +40,14 @@ func Setup(app *fiber.App) {
 	api.Post("/settings", handlers.SaveSettings)
 	api.Get("/logs", handlers.GetLogs)
 
-	// Serve static files from frontend/dist
 	app.Static("/", "./frontend/dist")
 
-	// SPA fallback - serve index.html for all non-API routes
 	app.Use(func(c *fiber.Ctx) error {
-		// If the request starts with /api but didn't match any route, return 404
 		if strings.HasPrefix(c.Path(), "/api") {
 			return c.Status(404).JSON(fiber.Map{
 				"error": "API route not found",
 			})
 		}
-		// For all other routes, serve the frontend
 		return c.SendFile("./frontend/dist/index.html")
 	})
 

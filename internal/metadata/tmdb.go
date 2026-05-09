@@ -85,10 +85,6 @@ func SearchSeries(title string, year int) (*TMDBSeries, error) {
 	params.Add("query", title)
 	params.Add("language", "pt-BR")
 
-	if year > 0 {
-		params.Add("first_air_date_year", fmt.Sprintf("%d", year))
-	}
-
 	fullURL := baseURL + "?" + params.Encode()
 	log.Println(fullURL)
 

@@ -120,6 +120,8 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 		log.Printf("Erro ao buscar metadata para %s: %v\n", parsed.Title, err)
 	}
 
+	duration, _ := utils.GetVideoDuration(file.Path)
+
 	var mediaItem *models.MediaItem
 
 	if metadata != nil {
@@ -127,6 +129,11 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 		if err == nil && existing != nil {
 			mediaItem = existing
 			log.Printf("MediaItem já existe: %s (ID: %d)\n", mediaItem.Title, mediaItem.ID)
+
+			if mediaItem.Duration == 0 && duration > 0 {
+				mediaItem.Duration = duration
+				s.mediaItemRepository.Update(mediaItem)
+			}
 		}
 	}
 
@@ -136,6 +143,7 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 			Title:         parsed.Title,
 			OriginalTitle: parsed.Title,
 			Year:          parsed.Year,
+			Duration:      duration,
 		}
 
 		if metadata != nil {
@@ -162,6 +170,7 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 		Size:        file.Size,
 		Fingerprint: file.Fingerprint,
 		Quality:     parsed.Quality,
+		Duration:    duration,
 		Status:      models.FileStatusPending,
 	}
 
@@ -187,6 +196,9 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 	if err != nil {
 		log.Printf("Erro ao buscar metadata para série %s: %v\n", parsed.Title, err)
 	}
+
+	duration, _ := utils.GetVideoDuration(file.Path)
+
 	_, seriesModel, err := s.findOrCreateSeries(parsed.Title, parsed.Year, metadata)
 	if err != nil {
 		return err
@@ -204,6 +216,7 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 		Title:         parsed.Title,
 		OriginalTitle: parsed.Title,
 		Year:          parsed.Year,
+		Duration:      duration,
 	}
 
 	err = s.mediaItemRepository.Create(episodeMediaItem)
@@ -226,6 +239,7 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 		Size:        file.Size,
 		Fingerprint: file.Fingerprint,
 		Quality:     parsed.Quality,
+		Duration:    duration,
 		Status:      models.FileStatusPending,
 	}
 

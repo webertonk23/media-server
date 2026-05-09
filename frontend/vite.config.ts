@@ -3,11 +3,9 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    // Bundle analyzer - generates stats.html after build
     visualizer({
       filename: './dist/stats.html',
       open: false,
@@ -31,68 +29,35 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'es2015',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.log in production
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info'], // Remove specific console methods
-      },
-    },
+    target: 'esnext',
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Split vendor chunks for better caching
           if (id.includes('node_modules')) {
-            // Vue core libraries (must check before general vue check)
-            if (id.includes('@vue/') || (id.includes('/vue/') && !id.includes('vue-router'))) {
-              return 'vue-vendor';
+            if (id.includes('@vue') || id.includes('vue-router') || id.includes('pinia')) {
+              return 'vendor-core';
             }
-            // Vue Router
-            if (id.includes('vue-router')) {
-              return 'vue-router-vendor';
-            }
-            // Pinia state management
-            if (id.includes('pinia')) {
-              return 'pinia-vendor';
-            }
-            // Axios HTTP client
             if (id.includes('axios')) {
-              return 'axios-vendor';
+              return 'vendor-axios';
             }
-            // Other node_modules
             return 'vendor';
           }
-          
-          // Split route components into separate chunks
           if (id.includes('/src/pages/')) {
-            const pageName = id.split('/src/pages/')[1].split('.vue')[0];
-            return `page-${pageName.toLowerCase()}`;
-          }
-          
-          // Split large component groups
-          if (id.includes('/src/components/player/')) {
-            return 'player-components';
-          }
-          if (id.includes('/src/components/media/')) {
-            return 'media-components';
+            return 'pages';
           }
         },
       },
-      // Enable tree-shaking
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-      },
     },
-    chunkSizeWarningLimit: 500, // Warn if chunks exceed 500KB
-    // Optimize for Raspberry Pi
+    chunkSizeWarningLimit: 800,
     cssCodeSplit: true,
     sourcemap: false,
-    // Additional optimizations
-    reportCompressedSize: true,
-    cssMinify: true,
+    reportCompressedSize: false,
+    cssMinify: 'esbuild',
+  },
+  esbuild: {
+    drop: ['console', 'debugger'],
+    pure: ['console.log', 'console.info', 'console.debug'],
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', 'pinia', 'axios'],

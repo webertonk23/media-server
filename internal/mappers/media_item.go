@@ -8,8 +8,13 @@ import (
 
 func ToMediaItemResponse(item models.MediaItem) dto.MediaItemResponse {
 	quality := ""
+	var files []dto.MediaFileResponse
+	
 	if len(item.Files) > 0 {
 		quality = item.Files[0].Quality
+		for _, f := range item.Files {
+			files = append(files, ToMediaFileResponse(f))
+		}
 	}
 
 	return dto.MediaItemResponse{
@@ -22,5 +27,7 @@ func ToMediaItemResponse(item models.MediaItem) dto.MediaItemResponse {
 		Backdrop:  item.Backdrop,
 		StreamURL: fmt.Sprintf("/stream/%s", item.ULID),
 		Quality:   quality,
+		Duration:  item.Duration,
+		Files:     files,
 	}
 }

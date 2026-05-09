@@ -34,3 +34,14 @@ func (s *ProgressService) Save(
 
 	return s.progressRepository.Save(&progress)
 }
+
+func (s *ProgressService) GetByMediaItemID(
+	mediaItemID uint,
+) (*models.MediaProgress, error) {
+
+	return s.progressRepository.GetByMediaItemID(mediaItemID)
+}
+
+func (s *ProgressService) GetContinueWatching() ([]models.MediaProgress, error) {
+	return s.progressRepository.GetContinueWatching()
+}

@@ -19,6 +19,7 @@ type MediaItem struct {
 	Poster        string      `gorm:"size:500"`
 	Backdrop      string      `gorm:"size:500"`
 	TMDBID        int         `gorm:"index"`
+	Duration      float64     `gorm:"default:0"`
 	Files         []MediaFile `gorm:"foreignKey:MediaItemID"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time

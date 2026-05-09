@@ -32,6 +32,8 @@ export interface MediaItem {
   backdrop?: string;
   stream_url?: string;
   quality?: string;
+  duration?: number;
+  files?: MediaFile[];
 }
 
 export interface PaginatedResponse<T> {
@@ -61,4 +63,6 @@ export interface Episode {
   runtime?: number;
   stream_url?: string;
   quality?: string;
+  duration?: number;
+  files?: MediaFile[];
 }

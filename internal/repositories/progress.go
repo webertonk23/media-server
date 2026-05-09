@@ -34,3 +34,33 @@ func (r *ProgressRepository) Save(
 
 	return database.DB.Save(&existing).Error
 }
+
+func (r *ProgressRepository) GetByMediaItemID(
+	mediaItemID uint,
+) (*models.MediaProgress, error) {
+
+	var progress models.MediaProgress
+
+	err := database.DB.
+		Where("media_item_id = ?", mediaItemID).
+		First(&progress).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &progress, nil
+}
+
+func (r *ProgressRepository) GetContinueWatching() ([]models.MediaProgress, error) {
+	var progressList []models.MediaProgress
+
+	err := database.DB.
+		Preload("MediaItem").
+		Preload("MediaItem.Files").
+		Where("finished = ?", false).
+		Order("last_watched_at DESC").
+		Find(&progressList).Error
+
+	return progressList, err
+}
