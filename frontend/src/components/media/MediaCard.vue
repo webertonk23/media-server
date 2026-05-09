@@ -9,9 +9,7 @@
     @keydown.space.prevent="handleClick"
     :aria-label="`${media.title}${media.year ? ` (${media.year})` : ''}`"
   >
-    <!-- Poster Container -->
     <div class="card-poster" :class="{ 'card-landscape': landscape }">
-      <!-- Image (lazy-loaded) -->
       <img
         v-if="imageVisible && media.poster && !imageError"
         :src="media.poster"
@@ -22,7 +20,6 @@
         :class="{ 'card-img-loaded': imageLoaded }"
       />
 
-      <!-- Skeleton / Fallback -->
       <div
         v-if="!imageLoaded || !media.poster || imageError"
         class="card-placeholder"
@@ -33,12 +30,10 @@
         </svg>
       </div>
 
-      <!-- Progress bar (continue watching) -->
       <div v-if="progress && progress > 0" class="card-progress">
         <div class="card-progress-bar" :style="{ width: `${Math.min(progress, 100)}%` }"></div>
       </div>
 
-      <!-- Hover overlay -->
       <div class="card-overlay">
         <div class="overlay-play">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -56,13 +51,11 @@
         </div>
       </div>
 
-      <!-- Type badge on top right -->
       <div class="card-badge" :class="`badge-${media.type}`">
         {{ typeShort(media.type) }}
       </div>
     </div>
 
-    <!-- Card footer (title below) -->
     <div class="card-footer">
       <p class="card-title">{{ media.title }}</p>
       <p v-if="media.year" class="card-year">{{ media.year }}</p>
@@ -76,8 +69,8 @@ import type { MediaItem } from '@/types/media'
 
 interface Props {
   media: MediaItem
-  progress?: number // 0-100 percentage
-  landscape?: boolean // for episode cards
+  progress?: number
+  landscape?: boolean
 }
 
 const props = defineProps<Props>()
@@ -98,7 +91,7 @@ const handleClick = () => {
 }
 
 const typeShort = (type: string) => {
-  const map: Record<string, string> = { movie: 'F', series: 'S', episode: 'E' }
+  const map: Record<string, string> = { movie: 'F', series: 'S', episode: 'S' }
   return map[type] ?? ''
 }
 
@@ -130,11 +123,10 @@ onUnmounted(() => {
   position: relative;
 }
 
-/* Poster */
 .card-poster {
   position: relative;
   width: 100%;
-  padding-bottom: 150%; /* 2:3 ratio */
+  padding-bottom: 150%;
   border-radius: 0.5rem;
   overflow: hidden;
   background: var(--color-cinema-dark-700);
@@ -142,7 +134,7 @@ onUnmounted(() => {
 }
 
 .card-landscape {
-  padding-bottom: 56.25%; /* 16:9 */
+  padding-bottom: 56.25%;
 }
 
 .media-card:hover .card-poster,
@@ -180,7 +172,6 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.15);
 }
 
-/* Progress bar */
 .card-progress {
   position: absolute;
   bottom: 0;
@@ -198,7 +189,6 @@ onUnmounted(() => {
   transition: width 0.3s ease;
 }
 
-/* Hover overlay */
 .card-overlay {
   position: absolute;
   inset: 0;
@@ -277,7 +267,6 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-/* Type badge */
 .card-badge {
   position: absolute;
   top: 0.5rem;
@@ -305,11 +294,10 @@ onUnmounted(() => {
 }
 
 .badge-episode {
-  background: rgba(34, 197, 94, 0.8);
+  background: rgba(99, 102, 241, 0.8);
   color: #fff;
 }
 
-/* Footer */
 .card-footer {
   padding: 0 0.125rem;
 }
@@ -330,3 +318,4 @@ onUnmounted(() => {
   margin-top: 0.125rem;
 }
 </style>
+

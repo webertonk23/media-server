@@ -14,7 +14,7 @@ services:
       # Para Pi 3 use: h264_v4l2m2m
       # Para N100 use: h264_qsv
       # Para Software use: libx264
-      - TRANSCODE_CODEC=h264_v4l2m2m
+      - TRANSCODE_CODEC=h264_qsv
       - TRANSCODE_PRESET=fast
     # devices:
       # Necessário para acessar o chip de vídeo da Pi 3 (aceleração de hardware)

@@ -39,6 +39,7 @@ func Connect() {
 		&models.Series{},
 		&models.Season{},
 		&models.Episode{},
+		&models.Settings{},
 	)
 
 	if err != nil {

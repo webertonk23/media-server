@@ -117,12 +117,16 @@ const continueWatchingProgressMap = computed(() => {
   return map
 })
 
-// Featured media for hero (first 5 items)
-const heroMedia = computed(() => mediaItems.value.slice(0, 5))
-const featuredMedia = computed(() => mediaItems.value[0] || null)
+// Featured media for hero (first 5 items) - exclude episodes
+const heroMedia = computed(() => 
+  mediaItems.value.filter(item => item.type !== 'episode').slice(0, 5)
+)
+const featuredMedia = computed(() => heroMedia.value[0] || null)
 
-// Recently added (up to 20)
-const recentMedia = computed(() => mediaItems.value.slice(0, 20))
+// Recently added (up to 20) - exclude episodes
+const recentMedia = computed(() => 
+  mediaItems.value.filter(item => item.type !== 'episode').slice(0, 20)
+)
 
 // Movies only
 const movies = computed(() =>

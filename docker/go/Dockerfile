@@ -4,7 +4,9 @@ RUN apk add --no-cache \
     ffmpeg \
     git \
     gcc \
-    musl-dev
+    musl-dev \
+    nodejs \
+    npm
 
 WORKDIR /app
 

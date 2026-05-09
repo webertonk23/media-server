@@ -52,6 +52,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Configurações' }
   },
   {
+    path: '/transcode-monitor',
+    name: 'transcode-monitor',
+    component: () => import('../pages/TranscodeMonitorPage.vue'),
+    meta: { title: 'Monitor de Transcode' }
+  },
+  {
     path: '/media/:id',
     name: 'media-detail',
     component: () => import('../pages/MediaDetailPage.vue'),

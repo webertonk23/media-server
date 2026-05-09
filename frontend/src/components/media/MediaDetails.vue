@@ -257,7 +257,7 @@ const actionLabel = computed(() =>
 )
 
 const typeLabel = (type: string) => {
-  const map: Record<string, string> = { movie: 'Filme', series: 'Série', episode: 'Episódio' }
+  const map: Record<string, string> = { movie: 'Filme', series: 'Série', episode: 'Série' }
   return map[type] || type
 }
 

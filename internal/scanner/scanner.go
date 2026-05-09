@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-// ScannedFile representa um arquivo descoberto pelo scanner
-// O scanner NÃO conhece TMDB, Movie ou Series
 type ScannedFile struct {
 	Filename    string
 	Path        string
@@ -20,7 +18,6 @@ type ScannedFile struct {
 	Extension   string
 }
 
-// SupportedExtensions define as extensões de vídeo suportadas
 var SupportedExtensions = []string{
 	".mp4",
 	".mkv",
@@ -32,7 +29,6 @@ var SupportedExtensions = []string{
 	".m4v",
 }
 
-// ScanDirectory percorre um diretório e retorna todos os arquivos de vídeo encontrados
 func ScanDirectory(rootPath string) ([]ScannedFile, error) {
 	var files []ScannedFile
 
@@ -50,6 +46,10 @@ func ScanDirectory(rootPath string) ([]ScannedFile, error) {
 			ext := strings.ToLower(filepath.Ext(path))
 
 			if !isSupportedExtension(ext) {
+				return nil
+			}
+
+			if strings.HasPrefix(info.Name(), "output.") || strings.HasPrefix(info.Name(), "transcoding_") {
 				return nil
 			}
 

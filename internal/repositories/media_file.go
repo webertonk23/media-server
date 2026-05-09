@@ -81,6 +81,12 @@ func (r *MediaFileRepository) FindAllPaths() (map[string]bool, error) {
 	return paths, nil
 }
 
+func (r *MediaFileRepository) FindByStatus(status string) ([]models.MediaFile, error) {
+	var files []models.MediaFile
+	result := database.DB.Where("status = ?", status).Find(&files)
+	return files, result.Error
+}
+
 func (r *MediaFileRepository) FindNextPending() (*models.MediaFile, error) {
 	var file models.MediaFile
 	result := database.DB.Where("status = ?", models.FileStatusPending).Order("created_at asc").First(&file)

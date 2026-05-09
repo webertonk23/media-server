@@ -7,7 +7,47 @@
       </div>
 
       <div class="settings-sections">
-        <!-- Library -->
+        <div class="settings-section">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Sistema
+          </h2>
+          <div class="settings-items">
+            <div class="settings-item">
+              <div class="item-info">
+                <p class="item-label">Diretório de Filmes</p>
+                <div class="input-group">
+                  <input v-model="config.movie_path" type="text" class="settings-input" />
+                  <button class="btn-ghost btn-small" @click="openBrowser('movie')">Escolher</button>
+                </div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <div class="item-info">
+                <p class="item-label">Diretório de Séries</p>
+                <div class="input-group">
+                  <input v-model="config.series_path" type="text" class="settings-input" />
+                  <button class="btn-ghost btn-small" @click="openBrowser('series')">Escolher</button>
+                </div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <div class="item-info">
+                <p class="item-label">Intervalo de Scan (minutos)</p>
+                <div class="input-group">
+                  <input v-model.number="config.scan_interval" type="number" class="settings-input" style="width: 100px" />
+                </div>
+              </div>
+            </div>
+            <div class="settings-item">
+               <button class="btn-primary" @click="saveConfig">Salvar Configurações</button>
+            </div>
+          </div>
+        </div>
+
         <div class="settings-section">
           <h2 class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -42,10 +82,16 @@
               </div>
               <button class="btn-ghost" :disabled="scanning" @click="scanSeries">Escanear séries</button>
             </div>
+            <div class="settings-item">
+              <div class="item-info">
+                <p class="item-label">Monitor de Transcodificação</p>
+                <p class="item-desc">Acompanhe o status das tarefas de processamento de vídeo</p>
+              </div>
+              <router-link to="/transcode-monitor" class="btn-ghost" style="text-decoration: none;">Acessar Monitor</router-link>
+            </div>
           </div>
         </div>
 
-        <!-- About -->
         <div class="settings-section">
           <h2 class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -76,19 +122,23 @@
         </div>
       </div>
 
-      <!-- Scan notification -->
       <div v-if="scanMsg" class="scan-toast" :class="scanMsgType">
         {{ scanMsg }}
       </div>
     </div>
+    <FolderBrowser :show="showBrowser" @close="showBrowser = false" @select="handleSelect" />
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import apiClient from '@/services/api'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import FolderBrowser from '@/components/common/FolderBrowser.vue'
 
+const showBrowser = ref(false)
+const targetConfig = ref<'movie' | 'series'>('movie')
+const config = ref({ movie_path: '', series_path: '', scan_interval: 1 })
 const scanning = ref(false)
 const scanMsg = ref('')
 const scanMsgType = ref<'success' | 'error'>('success')
@@ -97,6 +147,43 @@ const notify = (msg: string, type: 'success' | 'error' = 'success') => {
   scanMsg.value = msg
   scanMsgType.value = type
   setTimeout(() => { scanMsg.value = '' }, 3500)
+}
+
+const fetchSettings = async () => {
+  try {
+    const res = await apiClient.get('/settings')
+    if (res.data) {
+      config.value = {
+        movie_path: res.data.movie_path || '',
+        series_path: res.data.series_path || '',
+        scan_interval: res.data.scan_interval || 1
+      }
+    }
+  } catch (e) {
+    console.error('Falha ao carregar configurações', e)
+  }
+}
+
+onMounted(fetchSettings)
+
+const saveConfig = async () => {
+  try {
+    await apiClient.post('/settings', config.value)
+    notify('Configurações salvas com sucesso!')
+  } catch (e) {
+    notify('Erro ao salvar configurações', 'error')
+  }
+}
+
+const openBrowser = (target: 'movie' | 'series') => {
+  targetConfig.value = target
+  showBrowser.value = true
+}
+
+const handleSelect = (path: string) => {
+  if (targetConfig.value === 'movie') config.value.movie_path = path
+  else config.value.series_path = path
+  showBrowser.value = false
 }
 
 const runScan = async (endpoint: string, label: string) => {
@@ -161,10 +248,25 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
 .item-label { font-size: 0.9rem; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.2rem; }
 .item-desc { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.4; }
 
+.input-group { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+.settings-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color var(--transition-fast);
+  outline: none;
+}
+.settings-input:focus { border-color: var(--color-accent); }
+.btn-small { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+
 .spin-icon { width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* About item */
 .about-item { gap: 1.25rem; }
 .about-logo {
   width: 3rem; height: 3rem;
@@ -185,7 +287,6 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
   color: var(--color-text-secondary);
 }
 
-/* Toast notification */
 .scan-toast {
   position: fixed;
   bottom: 2rem;

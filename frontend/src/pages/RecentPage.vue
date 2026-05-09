@@ -44,7 +44,7 @@ import MediaCard from '@/components/media/MediaCard.vue'
 const router = useRouter()
 const mediaStore = useMediaStore()
 const loading = ref(false)
-const items = computed(() => mediaStore.mediaItems)
+const items = computed(() => mediaStore.mediaItems.filter(i => i.type !== 'episode'))
 
 const load = async () => {
   loading.value = true

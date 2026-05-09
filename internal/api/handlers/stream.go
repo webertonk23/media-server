@@ -11,7 +11,7 @@ import (
 )
 
 // StreamMedia faz streaming de um MediaItem pelo ULID
-// Busca o primeiro MediaFile associado ao MediaItem
+// Busca o melhor MediaFile associado (preferindo transcoded)
 func StreamMedia(c *fiber.Ctx) error {
 	ulid := c.Params("id")
 
@@ -34,9 +34,14 @@ func StreamMedia(c *fiber.Ctx) error {
 		})
 	}
 
-	// Por enquanto, usar o primeiro arquivo
-	// No futuro, pode-se escolher por qualidade
-	file := files[0]
+	// Selecionar o melhor arquivo: preferir status 'completed'
+	var file = files[0]
+	for _, f := range files {
+		if f.Status == "completed" {
+			file = f
+			break
+		}
+	}
 
 	// Verificar se o arquivo existe no sistema
 	_, err = os.Stat(file.Path)

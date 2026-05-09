@@ -365,6 +365,7 @@
     transition: all var(--transition-base);
     border: none;
     cursor: pointer;
+    margin: 0.5rem;
   }
   
   .btn-primary {

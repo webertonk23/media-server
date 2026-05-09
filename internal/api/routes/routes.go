@@ -19,22 +19,23 @@ func Setup(app *fiber.App) {
 		})
 	})
 
-	// Rotas de scan
-	api.Post("/scan", handlers.ScanLibrary)           // Escaneia tudo
-	api.Post("/scan/movies", handlers.ScanMovies)     // Escaneia apenas filmes
-	api.Post("/scan/series", handlers.ScanSeries)     // Escaneia apenas séries
+	api.Post("/scan", handlers.ScanLibrary)
+	api.Post("/scan/movies", handlers.ScanMovies)
+	api.Post("/scan/series", handlers.ScanSeries)
 
-	// Rotas de mídia (usando ULID)
-	api.Get("/media", handlers.GetMediaItems)           // Lista todos os media items (filtrável por tipo)
-	api.Get("/media/:id", handlers.GetMediaItemByID)    // Busca media item por ID
-	api.Get("/movies", handlers.GetMovies)              // Lista apenas filmes
-	api.Get("/series", handlers.GetSeries)              // Lista apenas séries
-	api.Get("/stream/:id", handlers.StreamMedia)        // Stream de qualquer media item
-	api.Post("/progress/:id", handlers.UpdateProgress)  // Atualizar progresso
+	api.Get("/media", handlers.GetMediaItems)
+	api.Get("/media/:id", handlers.GetMediaItemByID)
+	api.Get("/movies", handlers.GetMovies)
+	api.Get("/series", handlers.GetSeries)
+	api.Get("/stream/:id", handlers.StreamMedia)
+	api.Post("/progress/:id", handlers.UpdateProgress)
 
-	// Rotas de séries
-	api.Get("/series/:id/seasons", handlers.GetSeriesSeasons)         // Lista temporadas de uma série
-	api.Get("/seasons/:seasonId/episodes", handlers.GetSeasonEpisodes) // Lista episódios de uma temporada
+	api.Get("/series/:id/seasons", handlers.GetSeriesSeasons)
+	api.Get("/seasons/:seasonId/episodes", handlers.GetSeasonEpisodes)
+	api.Get("/transcode/status", handlers.GetTranscodeStatus)
+	api.Get("/files/list", handlers.ListDirectory)
+	api.Get("/settings", handlers.GetSettings)
+	api.Post("/settings", handlers.SaveSettings)
 
 	// Serve static files from frontend/dist
 	app.Static("/", "./frontend/dist")

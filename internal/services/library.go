@@ -75,7 +75,6 @@ func (s *LibraryService) scanDirectory(path string, mediaType string) error {
 	for _, file := range files {
 		// Pular se já existe
 		if existingFingerprints[file.Fingerprint] {
-			log.Printf("Arquivo já existe: %s\n", file.Path)
 			continue
 		}
 
@@ -116,7 +115,6 @@ func (s *LibraryService) StartScannerWorker() {
 		time.Sleep(1 * time.Minute)
 	}
 }
-
 
 // processMovie processa um arquivo de filme
 func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
@@ -328,7 +326,6 @@ func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *Se
 
 	return mediaItem, seriesModel, nil
 }
-
 
 // findOrCreateSeason busca ou cria uma temporada
 func (s *LibraryService) findOrCreateSeason(seriesID uint, number int) (*models.Season, error) {

@@ -91,7 +91,9 @@ const hasSearched = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const results = computed(() =>
-  hasSearched.value && lastQuery.value ? mediaStore.mediaItems : []
+  hasSearched.value && lastQuery.value 
+    ? mediaStore.mediaItems.filter(i => i.type !== 'episode') 
+    : []
 )
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null

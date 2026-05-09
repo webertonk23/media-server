@@ -19,6 +19,25 @@ export const MediaType = {
 export type MediaType = typeof MediaType[keyof typeof MediaType];
 
 /**
+ * MediaFile interface matching backend MediaFile model
+ */
+export interface MediaFile {
+  id: number;
+  ulid: string;
+  media_item_id: number;
+  path: string;
+  size: number;
+  fingerprint: string;
+  quality: string;
+  status: string;
+  original_path?: string;
+  error_message?: string;
+  retry_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
  * MediaItem interface matching backend MediaItemResponse DTO
  * Represents a media item (movie, series, or episode) with associated metadata
  */
