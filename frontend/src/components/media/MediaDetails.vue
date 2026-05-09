@@ -49,6 +49,8 @@
             <span class="meta-badge" :class="`type-${media.type}`">
               {{ typeLabel(media.type) }}
             </span>
+            <span v-if="media.quality" class="meta-sep">•</span>
+            <span v-if="media.quality" class="meta-quality">{{ media.quality }}</span>
           </div>
 
           <!-- Overview -->
@@ -66,14 +68,14 @@
 
           <!-- Action buttons -->
           <div class="action-btns">
-            <button class="btn-primary action-play" @click="handleAction">
+            <button class="btn btn-primary action-play" @click="handleAction">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z"/>
               </svg>
               {{ actionLabel }}
             </button>
 
-            <button class="btn-ghost action-watchlist">
+            <button class="btn btn-ghost action-watchlist">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
               </svg>
@@ -128,25 +130,27 @@
             <span v-if="media.year">{{ media.year }}</span>
             <span class="meta-sep">•</span>
             <span class="meta-badge" :class="`type-${media.type}`">{{ typeLabel(media.type) }}</span>
+            <span v-if="media.quality" class="meta-sep">•</span>
+            <span v-if="media.quality" class="meta-quality">{{ media.quality }}</span>
           </div>
           <p v-if="media.overview" class="right-overview">{{ media.overview }}</p>
         </div>
 
         <!-- Quick action buttons for right panel -->
         <div class="right-actions">
-          <button class="btn-primary right-play-btn" @click="handleAction">
+          <button class="btn btn-primary right-play-btn" @click="handleAction">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
             </svg>
             Assistir
           </button>
-          <button class="btn-ghost right-watchlist-btn">
+          <button class="btn btn-ghost right-watchlist-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
             </svg>
             Assistir do Início
           </button>
-          <button class="btn-ghost right-list-btn">
+          <button class="btn btn-ghost right-list-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
@@ -438,6 +442,16 @@ const mediaMeta = computed(() => {
   font-weight: 600;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
+}
+
+.meta-quality {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-cinema-accent-secondary);
+  background: rgba(245, 197, 24, 0.1);
+  padding: 0.125rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(245, 197, 24, 0.2);
 }
 
 .type-movie {
@@ -832,19 +846,35 @@ const mediaMeta = computed(() => {
 
 .episodes-list {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-cinema-dark-500) transparent;
+}
+
+.episodes-list::-webkit-scrollbar {
+  height: 6px;
+}
+
+.episodes-list::-webkit-scrollbar-thumb {
+  background: var(--color-cinema-dark-500);
+  border-radius: 10px;
 }
 
 .episode-card {
+  flex: 0 0 280px;
   display: flex;
-  gap: 1.5rem;
-  padding: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
   border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
   transition: all var(--transition-fast);
+  scroll-snap-align: start;
 }
 
 .episode-card:hover {
@@ -855,7 +885,7 @@ const mediaMeta = computed(() => {
 
 .episode-thumb-wrap {
   position: relative;
-  width: 160px;
+  width: 100%;
   flex-shrink: 0;
   aspect-ratio: 16/9;
   border-radius: 0.5rem;

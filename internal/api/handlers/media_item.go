@@ -49,7 +49,6 @@ func GetMediaItems(c *fiber.Ctx) error {
 	})
 }
 
-// GetMediaItemByID busca um media item específico por ULID
 func GetMediaItemByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -72,7 +71,6 @@ func GetMediaItemByID(c *fiber.Ctx) error {
 	return c.JSON(mappers.ToMediaItemResponse(*item))
 }
 
-// GetMovies lista apenas filmes
 func GetMovies(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))

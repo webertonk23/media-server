@@ -52,13 +52,13 @@
 
             <!-- Actions -->
             <div class="hero-actions">
-              <button class="btn-primary hero-btn-play" @click="$emit('play', item)">
+              <button class="btn btn-primary hero-btn-play" @click="$emit('play', item)">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
                 Assistir
               </button>
-              <button class="btn-ghost hero-btn-info" @click="$emit('more-info', item)">
+              <button class="btn btn-ghost hero-btn-info" @click="$emit('more-info', item)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="12" y1="8" x2="12" y2="12"/>
@@ -329,23 +329,11 @@ onUnmounted(() => {
 }
 
 .hero-btn-play {
-  padding: 0.75rem 1.75rem;
-  font-size: 0.9375rem;
-}
-
-.hero-btn-play svg {
-  width: 1.25rem;
-  height: 1.25rem;
+  min-width: 140px;
 }
 
 .hero-btn-info {
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9375rem;
-}
-
-.hero-btn-info svg {
-  width: 1.125rem;
-  height: 1.125rem;
+  min-width: 180px;
 }
 
 /* Navigation arrows */

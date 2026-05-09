@@ -20,19 +20,17 @@ type Episode struct {
 
 	Number int `gorm:"not null;uniqueIndex:idx_season_episode"`
 
-	// Informações do episódio
 	Name     string `gorm:"size:500"`
 	Overview string `gorm:"type:text"`
-	Still    string `gorm:"size:500"` // Imagem do episódio
+	Still    string `gorm:"size:500"`
 
 	AirDate *time.Time
-	Runtime int `gorm:"default:0"` // Duração em minutos
+	Runtime int `gorm:"default:0"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-// BeforeCreate hook para gerar ULID automaticamente
 func (e *Episode) BeforeCreate(tx *gorm.DB) error {
 	if e.ULID == "" {
 		entropy := ulid.Monotonic(rand.Reader, 0)

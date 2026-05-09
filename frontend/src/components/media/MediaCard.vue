@@ -54,6 +54,10 @@
       <div class="card-badge" :class="`badge-${media.type}`">
         {{ typeShort(media.type) }}
       </div>
+
+      <div v-if="media.quality" class="card-quality">
+        {{ media.quality }}
+      </div>
     </div>
 
     <div class="card-footer">
@@ -296,6 +300,22 @@ onUnmounted(() => {
 .badge-episode {
   background: rgba(99, 102, 241, 0.8);
   color: #fff;
+}
+
+.card-quality {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.125rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(245, 197, 24, 0.9);
+  z-index: 6;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .card-footer {

@@ -22,13 +22,13 @@ func (r *MediaItemRepository) Update(item *models.MediaItem) error {
 
 func (r *MediaItemRepository) FindByID(id uint) (*models.MediaItem, error) {
 	var item models.MediaItem
-	result := database.DB.First(&item, id)
+	result := database.DB.Preload("Files").First(&item, id)
 	return &item, result.Error
 }
 
 func (r *MediaItemRepository) FindByULID(ulid string) (*models.MediaItem, error) {
 	var item models.MediaItem
-	result := database.DB.Where("ulid = ?", ulid).First(&item)
+	result := database.DB.Preload("Files").Where("ulid = ?", ulid).First(&item)
 	return &item, result.Error
 }
 
@@ -49,12 +49,9 @@ func (r *MediaItemRepository) Paginate(
 
 	query := database.DB.Model(&models.MediaItem{})
 
-	// Filtrar por tipo de mídia
 	if mediaType != "" {
 		query = query.Where("type = ?", mediaType)
 	}
-
-	// Filtrar por busca
 	if search != "" {
 		query = query.Where(
 			"LOWER(title) LIKE ? OR LOWER(original_title) LIKE ?",

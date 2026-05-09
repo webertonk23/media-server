@@ -33,6 +33,11 @@ func ToSeasonResponse(season models.Season) dto.SeasonResponse {
 }
 
 func ToEpisodeResponse(episode models.Episode, seasonNumber int) dto.EpisodeResponse {
+	quality := ""
+	if len(episode.MediaItem.Files) > 0 {
+		quality = episode.MediaItem.Files[0].Quality
+	}
+
 	return dto.EpisodeResponse{
 		ID:            episode.MediaItem.ULID,
 		Type:          episode.MediaItem.Type,
@@ -43,5 +48,6 @@ func ToEpisodeResponse(episode models.Episode, seasonNumber int) dto.EpisodeResp
 		Still:         episode.Still,
 		Runtime:       episode.Runtime,
 		StreamURL:     fmt.Sprintf("/stream/%s", episode.MediaItem.ULID),
+		Quality:       quality,
 	}
 }

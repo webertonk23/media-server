@@ -91,7 +91,7 @@
       <!-- Top Header -->
       <header class="top-header glass-dark">
         <!-- Mobile menu button -->
-        <button class="mobile-menu-btn" @click="mobileSidebarOpen = !mobileSidebarOpen">
+        <button class="btn btn-icon mobile-menu-btn" @click="mobileSidebarOpen = !mobileSidebarOpen">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/>
             <line x1="3" y1="12" x2="21" y2="12"/>
@@ -113,7 +113,7 @@
             @keyup.enter="goToSearch"
             @input="onSearchInput"
           />
-          <button v-if="searchQuery" class="search-clear" @click="clearSearch">
+          <button v-if="searchQuery" class="btn btn-icon search-clear" @click="clearSearch">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>

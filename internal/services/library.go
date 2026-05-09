@@ -58,35 +58,27 @@ func (s *LibraryService) ScanAll() error {
 	return nil
 }
 
-// scanDirectory é o método genérico que escaneia um diretório
 func (s *LibraryService) scanDirectory(path string, mediaType string) error {
-	// 1. Scanner: descobre arquivos
 	files, err := scanner.ScanDirectory(path)
 	if err != nil {
 		return err
 	}
 
-	// Buscar fingerprints existentes para evitar duplicados
 	existingFingerprints, err := s.mediaFileRepository.FindAllFingerprints()
 	if err != nil {
 		return err
 	}
 
 	for _, file := range files {
-		// Pular se já existe
 		if existingFingerprints[file.Fingerprint] {
 			continue
 		}
-
-		// 2. Parser: detectar se é filme ou série
 		if utils.IsSeriesPath(file.Path) {
-			// É uma série
 			err := s.processSeries(file)
 			if err != nil {
 				log.Printf("Erro ao processar série %s: %v\n", file.Path, err)
 			}
 		} else {
-			// É um filme
 			err := s.processMovie(file)
 			if err != nil {
 				log.Printf("Erro ao processar filme %s: %v\n", file.Path, err)
@@ -97,41 +89,40 @@ func (s *LibraryService) scanDirectory(path string, mediaType string) error {
 	return nil
 }
 
-// Scan é um alias para ScanAll (escaneia filmes e séries)
 func (s *LibraryService) Scan() error {
 	return s.ScanAll()
 }
-
-// StartScannerWorker inicia o loop de scan da biblioteca
 func (s *LibraryService) StartScannerWorker() {
 	log.Println("Scanner Worker iniciado. Monitorando pastas...")
+	settingsRepo := repositories.NewSettingsRepository()
 	for {
 		log.Println("Iniciando varredura da biblioteca...")
 		err := s.ScanAll()
 		if err != nil {
 			log.Printf("Erro durante varredura: %v\n", err)
 		}
-		log.Println("Varredura concluída. Aguardando 1 minuto para a próxima...")
-		time.Sleep(1 * time.Minute)
+
+		interval := 1
+		settings, err := settingsRepo.Get()
+		if err == nil && settings.ScanInterval > 0 {
+			interval = settings.ScanInterval
+		}
+
+		log.Printf("Varredura concluída. Aguardando %d minuto(s) para a próxima...\n", interval)
+		time.Sleep(time.Duration(interval) * time.Minute)
 	}
 }
 
-// processMovie processa um arquivo de filme
 func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
-	// Parser: extrai informações do nome do arquivo
 	parsed := utils.ParseMovieFilename(file.Path)
-
-	// Metadata provider: busca informações no TMDB
 	metadata, err := s.metadataService.SearchMovie(parsed.Title, parsed.Year)
 	if err != nil {
 		log.Printf("Erro ao buscar metadata para %s: %v\n", parsed.Title, err)
 	}
 
-	// Criar ou buscar MediaItem
 	var mediaItem *models.MediaItem
 
 	if metadata != nil {
-		// Verificar se já existe um MediaItem com esse TMDB ID
 		existing, err := s.mediaItemRepository.FindByTMDBID(metadata.TMDBID, models.MediaTypeMovie)
 		if err == nil && existing != nil {
 			mediaItem = existing
@@ -139,7 +130,6 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 		}
 	}
 
-	// Se não existe, criar novo MediaItem
 	if mediaItem == nil {
 		mediaItem = &models.MediaItem{
 			Type:          models.MediaTypeMovie,
@@ -166,14 +156,13 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 		log.Printf("MediaItem criado: %s (ID: %d)\n", mediaItem.Title, mediaItem.ID)
 	}
 
-	// Criar MediaFile associado ao MediaItem
 	mediaFile := &models.MediaFile{
 		MediaItemID: mediaItem.ID,
 		Path:        file.Path,
 		Size:        file.Size,
 		Fingerprint: file.Fingerprint,
 		Quality:     parsed.Quality,
-		Status:      models.FileStatusPending, // Inicia como pendente para o transcoder
+		Status:      models.FileStatusPending,
 	}
 
 	err = s.mediaFileRepository.Create(mediaFile)
@@ -185,9 +174,7 @@ func (s *LibraryService) processMovie(file scanner.ScannedFile) error {
 	return nil
 }
 
-// processSeries processa um arquivo de série/episódio
 func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
-	// Parser: extrai informações de série
 	parsed := utils.ParseSeriesFilename(file.Path)
 
 	if !parsed.IsSeries {
@@ -196,19 +183,15 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 
 	log.Printf("Processando série: %s S%02dE%02d\n", parsed.Title, parsed.Season, parsed.Episode)
 
-	// Buscar metadata no TMDB TV para unificar nomes (ex: Foundation vs Fundação)
 	metadata, err := s.metadataService.SearchSeries(parsed.Title, parsed.Year)
 	if err != nil {
 		log.Printf("Erro ao buscar metadata para série %s: %v\n", parsed.Title, err)
 	}
-
-	// Buscar ou criar Series (MediaItem)
 	_, seriesModel, err := s.findOrCreateSeries(parsed.Title, parsed.Year, metadata)
 	if err != nil {
 		return err
 	}
 
-	// Buscar ou criar Season
 	season, err := s.findOrCreateSeason(seriesModel.ID, parsed.Season)
 	if err != nil {
 		return err
@@ -216,10 +199,9 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 
 	log.Printf("Season encontrada/criada: S%02d (ID: %d)\n", season.Number, season.ID)
 
-	// Criar MediaItem para o episódio
 	episodeMediaItem := &models.MediaItem{
 		Type:          models.MediaTypeEpisode,
-		Title:         parsed.Title, // Será atualizado com metadata
+		Title:         parsed.Title,
 		OriginalTitle: parsed.Title,
 		Year:          parsed.Year,
 	}
@@ -231,7 +213,6 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 
 	log.Printf("MediaItem do episódio criado (ID: %d)\n", episodeMediaItem.ID)
 
-	// Criar Episode
 	episode, err := s.findOrCreateEpisode(season.ID, parsed.Episode, episodeMediaItem.ID)
 	if err != nil {
 		return err
@@ -239,7 +220,6 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 
 	log.Printf("Episode criado: S%02dE%02d (ID: %d)\n", season.Number, episode.Number, episode.ID)
 
-	// Criar MediaFile associado ao episódio
 	mediaFile := &models.MediaFile{
 		MediaItemID: episodeMediaItem.ID,
 		Path:        file.Path,
@@ -258,11 +238,9 @@ func (s *LibraryService) processSeries(file scanner.ScannedFile) error {
 	return nil
 }
 
-// findOrCreateSeries busca ou cria uma série
 func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *SeriesMetadata) (*models.MediaItem, *models.Series, error) {
 	var mediaItem *models.MediaItem
 
-	// 1. Tentar buscar por TMDB ID se tiver metadata
 	if metadata != nil {
 		existing, err := s.mediaItemRepository.FindByTMDBID(metadata.TMDBID, models.MediaTypeSeries)
 		if err == nil && existing != nil {
@@ -271,7 +249,6 @@ func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *Se
 		}
 	}
 
-	// 2. Se não achou por ID, tentar por título exato (fallback)
 	if mediaItem == nil {
 		items, _, err := s.mediaItemRepository.Paginate(1, 10, title, models.MediaTypeSeries)
 		if err == nil && len(items) > 0 {
@@ -285,7 +262,6 @@ func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *Se
 		}
 	}
 
-	// 3. Se ainda não existe, criar nova
 	if mediaItem == nil {
 		mediaItem = &models.MediaItem{
 			Type:          models.MediaTypeSeries,
@@ -311,7 +287,6 @@ func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *Se
 		log.Printf("MediaItem da série criado: %s (ID: %d)\n", mediaItem.Title, mediaItem.ID)
 	}
 
-	// Buscar ou criar registro na tabela Series
 	seriesModel, err := s.seriesRepository.FindByMediaItemID(mediaItem.ID)
 	if err != nil {
 		seriesModel = &models.Series{
@@ -327,14 +302,12 @@ func (s *LibraryService) findOrCreateSeries(title string, year int, metadata *Se
 	return mediaItem, seriesModel, nil
 }
 
-// findOrCreateSeason busca ou cria uma temporada
 func (s *LibraryService) findOrCreateSeason(seriesID uint, number int) (*models.Season, error) {
 	season, err := s.seasonRepository.FindBySeriesAndNumber(seriesID, number)
 	if err == nil {
 		return season, nil
 	}
 
-	// Criar nova temporada
 	season = &models.Season{
 		SeriesID: seriesID,
 		Number:   number,
@@ -348,7 +321,6 @@ func (s *LibraryService) findOrCreateSeason(seriesID uint, number int) (*models.
 	return season, nil
 }
 
-// findOrCreateEpisode busca ou cria um episódio
 func (s *LibraryService) findOrCreateEpisode(seasonID uint, number int, mediaItemID uint) (*models.Episode, error) {
 	episode, err := s.episodeRepository.FindBySeasonAndNumber(seasonID, number)
 	if err == nil {

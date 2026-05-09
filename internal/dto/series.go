@@ -42,4 +42,6 @@ type EpisodeResponse struct {
 
 	// URL para streaming
 	StreamURL string `json:"stream_url,omitempty"`
+
+	Quality string `json:"quality,omitempty"`
 }

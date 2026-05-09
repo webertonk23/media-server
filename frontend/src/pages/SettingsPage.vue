@@ -21,7 +21,7 @@
                 <p class="item-label">Diretório de Filmes</p>
                 <div class="input-group">
                   <input v-model="config.movie_path" type="text" class="settings-input" />
-                  <button class="btn-ghost btn-small" @click="openBrowser('movie')">Escolher</button>
+                  <button class="btn btn-ghost btn-sm" @click="openBrowser('movie')">Escolher</button>
                 </div>
               </div>
             </div>
@@ -30,7 +30,7 @@
                 <p class="item-label">Diretório de Séries</p>
                 <div class="input-group">
                   <input v-model="config.series_path" type="text" class="settings-input" />
-                  <button class="btn-ghost btn-small" @click="openBrowser('series')">Escolher</button>
+                  <button class="btn btn-ghost btn-sm" @click="openBrowser('series')">Escolher</button>
                 </div>
               </div>
             </div>
@@ -43,7 +43,7 @@
               </div>
             </div>
             <div class="settings-item">
-               <button class="btn-primary" @click="saveConfig">Salvar Configurações</button>
+                <button class="btn btn-primary" @click="saveConfig">Salvar Configurações</button>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@
                 <p class="item-label">Escanear biblioteca completa</p>
                 <p class="item-desc">Varre todos os arquivos de mídia nas pastas configuradas</p>
               </div>
-              <button class="btn-primary" :disabled="scanning" @click="scanAll">
+              <button class="btn btn-primary" :disabled="scanning" @click="scanAll">
                 <svg v-if="scanning" class="spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 12a9 9 0 11-6.219-8.56"/>
                 </svg>
@@ -73,21 +73,21 @@
                 <p class="item-label">Escanear apenas filmes</p>
                 <p class="item-desc">Processa somente arquivos de filmes</p>
               </div>
-              <button class="btn-ghost" :disabled="scanning" @click="scanMovies">Escanear filmes</button>
+              <button class="btn btn-ghost" :disabled="scanning" @click="scanMovies">Escanear filmes</button>
             </div>
             <div class="settings-item">
               <div class="item-info">
                 <p class="item-label">Escanear apenas séries</p>
                 <p class="item-desc">Processa somente arquivos de séries</p>
               </div>
-              <button class="btn-ghost" :disabled="scanning" @click="scanSeries">Escanear séries</button>
+              <button class="btn btn-ghost" :disabled="scanning" @click="scanSeries">Escanear séries</button>
             </div>
             <div class="settings-item">
               <div class="item-info">
                 <p class="item-label">Monitor de Transcodificação</p>
                 <p class="item-desc">Acompanhe o status das tarefas de processamento de vídeo</p>
               </div>
-              <router-link to="/transcode-monitor" class="btn-ghost" style="text-decoration: none;">Acessar Monitor</router-link>
+              <router-link to="/transcode-monitor" class="btn btn-ghost" style="text-decoration: none;">Acessar Monitor</router-link>
             </div>
           </div>
         </div>
