@@ -7,10 +7,12 @@ import (
 	"media-server/internal/config"
 	"media-server/internal/database"
 	"media-server/internal/services"
+	"media-server/internal/utils"
 )
 
 func main() {
 	config.Load()
+	utils.InitLogger(100, "data/app.log")
 	database.Connect()
 
 	if len(os.Args) < 2 {

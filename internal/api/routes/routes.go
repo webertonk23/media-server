@@ -36,6 +36,7 @@ func Setup(app *fiber.App) {
 	api.Get("/files/list", handlers.ListDirectory)
 	api.Get("/settings", handlers.GetSettings)
 	api.Post("/settings", handlers.SaveSettings)
+	api.Get("/logs", handlers.GetLogs)
 
 	// Serve static files from frontend/dist
 	app.Static("/", "./frontend/dist")

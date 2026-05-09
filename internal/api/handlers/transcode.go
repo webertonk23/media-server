@@ -20,8 +20,14 @@ func GetTranscodeStatus(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar processando"})
 	}
 
+	failed, err := repo.FindByStatus(models.FileStatusError)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar falhas"})
+	}
+
 	return c.JSON(fiber.Map{
 		"pending":    mappers.ToMediaFileResponses(pending),
 		"processing": mappers.ToMediaFileResponses(processing),
+		"errors":     mappers.ToMediaFileResponses(failed),
 	})
 }

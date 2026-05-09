@@ -68,6 +68,14 @@
         <div class="nav-divider"></div>
 
         <div class="nav-section nav-section-bottom">
+          <router-link to="/logs" class="nav-item" active-class="nav-item-active" title="Logs">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+              <polyline points="13 2 13 9 20 9"></polyline>
+            </svg>
+            <span class="nav-label">Logs</span>
+          </router-link>
+
           <router-link to="/settings" class="nav-item" active-class="nav-item-active" title="Configurações">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"/>

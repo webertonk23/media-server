@@ -42,6 +42,22 @@
             <p>A fila de conversão está vazia.</p>
           </div>
         </div>
+
+        <div class="status-box error-box" v-if="status.errors.length > 0">
+          <div class="box-header">
+            <h3>Erros</h3>
+            <span class="badge error-badge">{{ status.errors.length }}</span>
+          </div>
+          <ul class="file-list">
+            <li v-for="item in status.errors" :key="item.id" class="file-item error-item">
+              <span class="file-icon">❌</span>
+              <div class="file-info">
+                <span class="file-path">{{ formatPath(item.path) }}</span>
+                <span v-if="item.error_message" class="error-msg">{{ item.error_message }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </DefaultLayout>
@@ -53,9 +69,10 @@ import apiClient from '@/services/api'
 import type { MediaFile } from '@/types/media'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
-const status = ref<{ pending: MediaFile[], processing: MediaFile[] }>({ 
+const status = ref<{ pending: MediaFile[], processing: MediaFile[], errors: MediaFile[] }>({ 
   pending: [], 
-  processing: [] 
+  processing: [],
+  errors: []
 })
 
 let intervalId: number | null = null
@@ -65,7 +82,8 @@ const fetchStatus = async () => {
     const res = await apiClient.get('/transcode/status')
     status.value = {
       pending: res.data?.pending || [],
-      processing: res.data?.processing || []
+      processing: res.data?.processing || [],
+      errors: res.data?.errors || []
     }
   } catch (e) {
     console.error(e)
@@ -73,6 +91,7 @@ const fetchStatus = async () => {
 }
 
 const formatPath = (path: string) => {
+  if (!path) return ''
   const parts = path.split('/')
   return parts[parts.length - 1]
 }
@@ -104,6 +123,11 @@ onUnmounted(() => {
   flex-direction: column;
 }
 
+.error-box {
+  grid-column: 1 / -1;
+  border-color: rgba(229, 9, 20, 0.2);
+}
+
 .box-header {
   display: flex;
   align-items: center;
@@ -114,7 +138,8 @@ onUnmounted(() => {
 }
 
 .box-header h3 { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); margin: 0; }
-.badge { background: var(--color-accent); color: #fff; padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; }
+.badge { background: var(--color-cinema-accent-primary); color: #fff; padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; }
+.error-badge { background: #ef4444; }
 
 .file-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
 .file-item {
@@ -126,7 +151,23 @@ onUnmounted(() => {
 }
 .file-item:last-child { border-bottom: none; }
 
-.file-icon { display: flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; color: var(--color-accent); }
+.error-item {
+  align-items: flex-start;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error-msg {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-family: monospace;
+}
+
+.file-icon { display: flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; color: var(--color-cinema-accent-primary); }
 .file-path { font-size: 0.85rem; color: var(--color-text-secondary); word-break: break-all; }
 
 .empty-state { padding: 3rem 1.5rem; text-align: center; color: var(--color-text-muted); font-size: 0.9rem; font-style: italic; }
@@ -136,5 +177,6 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .status-grid { grid-template-columns: 1fr; }
+  .error-box { grid-column: auto; }
 }
 </style>

@@ -58,6 +58,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Monitor de Transcode' }
   },
   {
+    path: '/logs',
+    name: 'logs',
+    component: () => import('../pages/LogsPage.vue'),
+    meta: { title: 'Logs do Sistema' }
+  },
+  {
     path: '/media/:id',
     name: 'media-detail',
     component: () => import('../pages/MediaDetailPage.vue'),
