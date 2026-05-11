@@ -57,7 +57,6 @@ func streamMP4(c *fiber.Ctx, path string) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "cannot open file"})
 	}
-	defer f.Close()
 
 	stat, err := f.Stat()
 	if err != nil {
@@ -74,7 +73,7 @@ func streamMP4(c *fiber.Ctx, path string) error {
 	if rangeHeader == "" {
 		c.Set("Content-Length", fmt.Sprintf("%d", fileSize))
 		c.Status(200)
-		c.Response().SetBodyStream(f, int(fileSize))
+		c.Response().SetBodyStream(f, -1)
 		return nil
 	}
 
@@ -111,7 +110,7 @@ func streamMP4(c *fiber.Ctx, path string) error {
 	c.Set("Content-Length", fmt.Sprintf("%d", chunkSize))
 	c.Status(206)
 
-	c.Response().SetBodyStream(io.LimitReader(f, chunkSize), int(chunkSize))
+	c.Response().SetBodyStream(io.LimitReader(f, chunkSize), -1)
 	return nil
 }
 
@@ -123,7 +122,6 @@ func streamViaFFmpeg(c *fiber.Ctx, inputPath string, start string) error {
 
 	codec := selectCodec(codecEnv)
 
-	// Smart Remux: check if we can just copy the video stream
 	if shouldCopyVideo(inputPath) {
 		log.Printf("[Stream] Smart Remux: %s is already H264, using copy\n", inputPath)
 		codec = "copy"
