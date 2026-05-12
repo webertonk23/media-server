@@ -1,9 +1,12 @@
 package repositories
+
 import (
 	"media-server/internal/database"
 	"media-server/internal/models"
 )
+
 type MediaFileRepository struct{}
+
 func NewMediaFileRepository() *MediaFileRepository {
 	return &MediaFileRepository{}
 }
@@ -43,7 +46,6 @@ func (r *MediaFileRepository) DeleteByMediaItemID(mediaItemID uint) ([]models.Me
 	err = database.DB.Where("media_item_id = ?", mediaItemID).Delete(&models.MediaFile{}).Error
 	return files, err
 }
-
 
 func (r *MediaFileRepository) FindAllFingerprints() (map[string]bool, error) {
 	var files []models.MediaFile
@@ -93,10 +95,3 @@ func (r *MediaFileRepository) UpdateStatus(id uint, status string, errorMessage 
 	}
 	return database.DB.Model(&models.MediaFile{}).Where("id = ?", id).Updates(updates).Error
 }
-
-func (r *MediaFileRepository) DeleteOrphanedMediaFiles() (int64, error) {
-	result := database.DB.Where("media_item_id NOT IN (SELECT id FROM media_items)").Delete(&models.MediaFile{})
-	return result.RowsAffected, result.Error
-}
-
-

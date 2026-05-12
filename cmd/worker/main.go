@@ -1,13 +1,14 @@
 package main
+
 import (
 	"log"
-	"os"
 	"media-server/internal/config"
 	"media-server/internal/database"
-	"media-server/internal/repositories"
 	"media-server/internal/services"
 	"media-server/internal/utils"
+	"os"
 )
+
 func main() {
 	config.Load()
 	utils.InitLogger(100, "data/app.log")
@@ -23,13 +24,6 @@ func main() {
 	case "transcoder":
 		transcoderService := services.NewTranscoderService()
 		transcoderService.StartWorker()
-	case "cleanup":
-		repo := repositories.NewMediaFileRepository()
-		count, err := repo.DeleteOrphanedMediaFiles()
-		if err != nil {
-			log.Fatalf("Erro ao limpar registros orfãos: %v", err)
-		}
-		log.Printf("Limpeza concluída: %d arquivos removidos.", count)
 	default:
 		log.Fatalf("Tipo de worker desconhecido: %s", workerType)
 	}
