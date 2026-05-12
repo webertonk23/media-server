@@ -1,5 +1,4 @@
 package dto
-
 type MediaItemResponse struct {
 	ID        string              `json:"id"`
 	Type      string              `json:"type"`

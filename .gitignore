@@ -22,6 +22,7 @@ tmp/
 *.dylib
 main
 media-server
+worker
 
 # Go
 *.test

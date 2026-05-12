@@ -37,7 +37,7 @@ Media server pessoal leve inspirado em Plex/Jellyfin, otimizado para Raspberry P
 
 ### Infraestrutura
 - **Docker** + Docker Compose
-- **Aceleração de Hardware**: Configurado para Intel QSV e Raspberry Pi (v4l2m2m).
+- **Aceleração de Hardware**: Configurado para AMD Radeon (VA-API), Intel QSV e Raspberry Pi (v4l2m2m).
 
 ## 🚀 Quick Start
 
@@ -56,7 +56,7 @@ cd media-server
 ```bash
 PORT=9000
 TMDB_API_KEY=sua_chave_tmdb
-TRANSCODE_CODEC=h264_qsv # ou libx264 para software
+TRANSCODE_CODEC=h264_vaapi # ou libx264 para software, h264_qsv para Intel, h264_v4l2m2m para Pi
 ```
 
 3. Inicie os serviços:

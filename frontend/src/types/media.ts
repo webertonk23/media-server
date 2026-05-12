@@ -3,9 +3,7 @@ export const MediaType = {
   Series: 'series',
   Episode: 'episode'
 } as const;
-
 export type MediaType = typeof MediaType[keyof typeof MediaType];
-
 export interface MediaFile {
   id: number;
   ulid: string;
@@ -21,7 +19,6 @@ export interface MediaFile {
   created_at: string;
   updated_at: string;
 }
-
 export interface MediaItem {
   id: string;
   type: MediaType;
@@ -35,14 +32,12 @@ export interface MediaItem {
   duration?: number;
   files?: MediaFile[];
 }
-
 export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   total: number;
   items: T[];
 }
-
 export interface Season {
   id: string;
   number: number;
@@ -51,7 +46,6 @@ export interface Season {
   poster?: string;
   episode_count?: number;
 }
-
 export interface Episode {
   id: string;
   type: string;

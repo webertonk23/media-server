@@ -1,11 +1,9 @@
 package mappers
-
 import (
 	"fmt"
 	"media-server/internal/dto"
 	"media-server/internal/models"
 )
-
 func ToSeriesResponse(mediaItem models.MediaItem, series models.Series) dto.SeriesResponse {
 	return dto.SeriesResponse{
 		ID:             mediaItem.ULID,
@@ -20,7 +18,6 @@ func ToSeriesResponse(mediaItem models.MediaItem, series models.Series) dto.Seri
 		NumberEpisodes: series.NumberEpisodes,
 	}
 }
-
 func ToSeasonResponse(season models.Season) dto.SeasonResponse {
 	return dto.SeasonResponse{
 		ID:           season.ULID,
@@ -31,13 +28,11 @@ func ToSeasonResponse(season models.Season) dto.SeasonResponse {
 		EpisodeCount: season.EpisodeCount,
 	}
 }
-
 func ToEpisodeResponse(episode models.Episode, seasonNumber int) dto.EpisodeResponse {
 	quality := ""
 	if len(episode.MediaItem.Files) > 0 {
 		quality = episode.MediaItem.Files[0].Quality
 	}
-
 	return dto.EpisodeResponse{
 		ID:            episode.MediaItem.ULID,
 		Type:          episode.MediaItem.Type,

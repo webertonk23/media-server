@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -84,7 +83,6 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Não encontrado' }
   }
 ]
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
@@ -93,12 +91,10 @@ const router = createRouter({
     return { top: 0 }
   }
 })
-
 router.beforeEach((to, _from, next) => {
   if (to.meta.title) {
     document.title = `${to.meta.title} — MediaServer`
   }
   next()
 })
-
 export default router

@@ -16,11 +16,9 @@
     </div>
   </DefaultLayout>
 </template>
-
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 </script>
-
 <style scoped>
 .catalog-page { padding: 2rem; min-height: 100vh; }
 .catalog-header { margin-bottom: 2rem; }

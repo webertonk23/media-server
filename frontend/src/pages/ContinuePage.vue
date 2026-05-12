@@ -5,11 +5,9 @@
         <h1 class="catalog-title">Continuar Assistindo</h1>
         <p class="catalog-subtitle">Retome de onde parou</p>
       </div>
-
       <div v-if="loading" class="catalog-skeleton">
         <div v-for="i in 10" :key="i" class="skeleton card-skeleton"></div>
       </div>
-
       <div v-else-if="items.length === 0" class="catalog-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -18,7 +16,6 @@
         <span>Comece a assistir algo para aparecer aqui</span>
         <router-link to="/" class="btn-primary">Explorar biblioteca</router-link>
       </div>
-
       <div v-else class="catalog-grid">
         <div v-for="(item, index) in items" :key="item.media.id"
           class="catalog-card-wrap" :style="{ '--delay': `${Math.min(index * 0.03, 0.5)}s` }">
@@ -32,7 +29,6 @@
     </div>
   </DefaultLayout>
 </template>
-
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -40,18 +36,14 @@ import { useContinueWatchingStore } from '@/stores/continueWatchingStore'
 import type { MediaItem } from '@/types/media'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import MediaCard from '@/components/media/MediaCard.vue'
-
 const router = useRouter()
 const store = useContinueWatchingStore()
 const { items, loading } = store
-
 const handleClick = (media: MediaItem) => {
   router.push({ name: 'media-detail', params: { id: media.id } })
 }
-
 onMounted(() => store.fetchContinueWatching())
 </script>
-
 <style scoped>
 .catalog-page { padding: 2rem; min-height: 100vh; }
 .catalog-header { margin-bottom: 2rem; }

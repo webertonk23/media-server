@@ -28,9 +28,9 @@ echo "--- Iniciando Serviços Secundários ---"
 SCANNER_PID=$!
 echo "[PID $SCANNER_PID] Scanner iniciado"
 
-#./tmp/worker transcoder &
-#TRANSCODER_PID=$!
-#echo "[PID $TRANSCODER_PID] Transcoder iniciado"
+./tmp/worker transcoder &
+TRANSCODER_PID=$!
+echo "[PID $TRANSCODER_PID] Transcoder iniciado"
 
 echo "--- Todos os serviços iniciados ---"
 wait $API_PID

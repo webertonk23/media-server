@@ -6,21 +6,17 @@
  * 
  * **Validates: Requirements 17.1, 17.2, 17.3, 17.4, 17.5, 5.6**
  */
-
 import { onMounted, onUnmounted } from 'vue';
 import type { VideoPlayerControls } from '@/types/player';
 import { usePlayerStore } from '@/stores/playerStore';
-
 /**
  * Seek interval in seconds for arrow key navigation
  */
 const SEEK_INTERVAL = 10;
-
 /**
  * Volume adjustment step for arrow up/down keys
  */
 const VOLUME_STEP = 0.1;
-
 /**
  * Composable for managing keyboard shortcuts in the video player
  * 
@@ -47,7 +43,7 @@ const VOLUME_STEP = 0.1;
  * const videoRef = ref<HTMLVideoElement | null>(null);
  * const { controls } = useVideoPlayer(videoRef);
  * 
- * // Enable keyboard shortcuts
+ * 
  * useKeyboardShortcuts(controls);
  * </script>
  * 
@@ -58,7 +54,6 @@ const VOLUME_STEP = 0.1;
  */
 export function useKeyboardShortcuts(controls: VideoPlayerControls) {
   const playerStore = usePlayerStore();
-
   /**
    * Handle keyboard events and map to player actions
    * 
@@ -70,7 +65,6 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
    * @param event - Keyboard event
    */
   const handleKeyDown = (event: KeyboardEvent): void => {
-    // Ignore keyboard shortcuts if user is typing in an input field
     const target = event.target as HTMLElement;
     if (
       target.tagName === 'INPUT' ||
@@ -79,15 +73,11 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
     ) {
       return;
     }
-
     const { key } = event;
     const { playerState } = playerStore;
-
     switch (key) {
       case ' ':
-      case 'Spacebar': // For older browsers
-        // Toggle play/pause
-        // **Validates: Requirement 17.1**
+      case 'Spacebar': 
         event.preventDefault();
         if (playerState.isPlaying) {
           controls.pause();
@@ -96,19 +86,13 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
         }
         console.debug('[useKeyboardShortcuts] Space: toggled play/pause');
         break;
-
       case 'f':
       case 'F':
-        // Toggle fullscreen
-        // **Validates: Requirement 17.2**
         event.preventDefault();
         controls.toggleFullscreen();
         console.debug('[useKeyboardShortcuts] F: toggled fullscreen');
         break;
-
       case 'ArrowRight':
-        // Seek forward 10 seconds
-        // **Validates: Requirement 17.3**
         event.preventDefault();
         const forwardTime = Math.min(
           playerState.currentTime + SEEK_INTERVAL,
@@ -117,40 +101,28 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
         controls.seek(forwardTime);
         console.debug('[useKeyboardShortcuts] Arrow Right: seek forward to', forwardTime);
         break;
-
       case 'ArrowLeft':
-        // Seek backward 10 seconds
-        // **Validates: Requirement 17.4**
         event.preventDefault();
         const backwardTime = Math.max(playerState.currentTime - SEEK_INTERVAL, 0);
         controls.seek(backwardTime);
         console.debug('[useKeyboardShortcuts] Arrow Left: seek backward to', backwardTime);
         break;
-
       case 'ArrowUp':
-        // Increase volume
-        // **Validates: Requirement 17.5**
         event.preventDefault();
         const increasedVolume = Math.min(playerState.volume + VOLUME_STEP, 1.0);
         controls.setVolume(increasedVolume);
         console.debug('[useKeyboardShortcuts] Arrow Up: volume increased to', increasedVolume);
         break;
-
       case 'ArrowDown':
-        // Decrease volume
-        // **Validates: Requirement 17.5**
         event.preventDefault();
         const decreasedVolume = Math.max(playerState.volume - VOLUME_STEP, 0);
         controls.setVolume(decreasedVolume);
         console.debug('[useKeyboardShortcuts] Arrow Down: volume decreased to', decreasedVolume);
         break;
-
       default:
-        // Ignore other keys
         break;
     }
   };
-
   /**
    * Attach keyboard event listener
    * 
@@ -161,7 +133,6 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
     document.addEventListener('keydown', handleKeyDown);
     console.debug('[useKeyboardShortcuts] Event listener attached');
   };
-
   /**
    * Detach keyboard event listener
    * 
@@ -172,7 +143,6 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
     document.removeEventListener('keydown', handleKeyDown);
     console.debug('[useKeyboardShortcuts] Event listener detached');
   };
-
   /**
    * Initialize keyboard shortcuts
    * 
@@ -181,7 +151,6 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
   onMounted(() => {
     attachEventListener();
   });
-
   /**
    * Cleanup keyboard shortcuts
    * 
@@ -190,9 +159,7 @@ export function useKeyboardShortcuts(controls: VideoPlayerControls) {
   onUnmounted(() => {
     detachEventListener();
   });
-
   return {
-    // Expose for testing or manual control if needed
     attachEventListener,
     detachEventListener,
   };

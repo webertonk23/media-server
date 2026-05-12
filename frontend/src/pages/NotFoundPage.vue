@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-
 const router = useRouter()
-
 const goHome = () => {
   router.push({ name: 'home' })
 }
 </script>
-
 <template>
   <div class="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white px-4">
     <h1 class="text-6xl font-bold mb-4">404</h1>

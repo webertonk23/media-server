@@ -42,7 +42,6 @@
             <span v-if="media.quality" class="meta-quality">{{ media.quality }}</span>
           </div>
           <p v-if="media.overview" class="details-overview">{{ media.overview }}</p>
-
           <div v-if="progress && !progress.finished" class="progress-section">
             <div class="progress-track">
               <div class="progress-fill" :style="{ width: `${progressPct}%` }"></div>
@@ -51,7 +50,6 @@
               {{ formatTime(progress.position) }} / {{ formatTime(progress.duration) }}
             </span>
           </div>
-
           <div class="action-btns">
             <button class="btn btn-primary action-play" @click="handleAction">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -59,7 +57,6 @@
               </svg>
               {{ actionLabel }}
             </button>
-
             <button class="btn btn-ghost action-watchlist">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
@@ -67,7 +64,6 @@
               Minha Lista
             </button>
           </div>
-
           <div v-if="mediaMeta.length > 0" class="meta-table">
             <div v-for="row in mediaMeta" :key="row.label" class="meta-row">
               <span class="meta-label">{{ row.label }}</span>
@@ -97,12 +93,10 @@
               </svg>
             </div>
           </div>
-
           <div v-if="progress" class="mini-progress-bar">
             <div class="mini-progress-fill" :style="{ width: `${progressPct}%` }"></div>
           </div>
         </div>
-
         <div class="right-panel-info">
           <h2 class="right-title">{{ media.title }}</h2>
           <div class="right-meta">
@@ -114,7 +108,6 @@
           </div>
           <p v-if="media.overview" class="right-overview">{{ media.overview }}</p>
         </div>
-
         <div class="right-actions">
           <button class="btn btn-primary right-play-btn" @click="handleAction">
             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -136,7 +129,6 @@
             + Minha Lista
           </button>
         </div>
-
         <div class="right-meta-table" v-if="mediaMeta.length > 0">
           <div v-for="row in mediaMeta" :key="row.label" class="right-meta-row">
             <span class="right-meta-label">{{ row.label }}</span>
@@ -145,7 +137,6 @@
         </div>
       </div>
     </div>
-
     <div v-if="media.type === 'series' && seasons && seasons.length > 0" class="episodes-section">
       <div class="episodes-header">
         <h2 class="episodes-title">Episódios</h2>
@@ -166,7 +157,6 @@
           </div>
         </div>
       </div>
-
       <div class="episodes-list" v-if="episodes && episodes.length > 0">
         <div 
           v-for="episode in episodes" 
@@ -204,12 +194,10 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { MediaItem, Season, Episode } from '@/types/media'
 import type { ProgressData } from '@/types/player'
-
 interface Props {
   media: MediaItem
   progress?: ProgressData | null
@@ -217,30 +205,24 @@ interface Props {
   episodes?: Episode[]
   selectedSeasonId?: string | null
 }
-
 const props = defineProps<Props>()
-
 const emit = defineEmits<{
   (e: 'play', media: MediaItem | Episode): void
   (e: 'continue', media: MediaItem): void
   (e: 'back'): void
   (e: 'season-select', seasonId: string): void
 }>()
-
 const progressPct = computed(() => {
   if (!props.progress?.duration) return 0
   return Math.min((props.progress.position / props.progress.duration) * 100, 100)
 })
-
 const actionLabel = computed(() =>
   props.progress && !props.progress.finished ? 'Continuar' : 'Assistir'
 )
-
 const typeLabel = (type: string) => {
   const map: Record<string, string> = { movie: 'Filme', series: 'Série', episode: 'Série' }
   return map[type] || type
 }
-
 const handleAction = () => {
   if (props.progress && !props.progress.finished) {
     emit('continue', props.media)
@@ -248,7 +230,6 @@ const handleAction = () => {
     emit('play', props.media)
   }
 }
-
 const formatTime = (seconds: number) => {
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
@@ -256,7 +237,6 @@ const formatTime = (seconds: number) => {
   if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   return `${m}:${String(s).padStart(2, '0')}`
 }
-
 const mediaMeta = computed(() => {
   const rows: { label: string; value: string }[] = []
   if (props.media.year) rows.push({ label: 'Ano', value: String(props.media.year) })
@@ -264,13 +244,11 @@ const mediaMeta = computed(() => {
   return rows
 })
 </script>
-
 <style scoped>
 .media-details {
   position: relative;
   min-height: 100vh;
 }
-
 .back-btn {
   position: absolute;
   top: 1.25rem;
@@ -288,14 +266,11 @@ const mediaMeta = computed(() => {
   transition: all var(--transition-fast);
   backdrop-filter: blur(8px);
 }
-
 .back-btn:hover {
   background: var(--color-accent);
   border-color: var(--color-accent);
 }
-
 .back-btn svg { width: 1.25rem; height: 1.25rem; }
-
 .details-backdrop {
   position: absolute;
   top: 0;
@@ -305,20 +280,17 @@ const mediaMeta = computed(() => {
   overflow: hidden;
   z-index: 0;
 }
-
 .backdrop-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
 }
-
 .backdrop-fallback {
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, #1a1a2e, #0f3460);
 }
-
 .backdrop-gradient {
   position: absolute;
   inset: 0;
@@ -329,7 +301,6 @@ const mediaMeta = computed(() => {
     var(--color-cinema-dark-900) 100%
   );
 }
-
 .details-body {
   position: relative;
   z-index: 10;
@@ -341,13 +312,11 @@ const mediaMeta = computed(() => {
   max-width: 1400px;
   margin: 0 auto;
 }
-
 .details-left {
   display: flex;
   gap: 1.75rem;
   align-items: flex-start;
 }
-
 .poster-wrap {
   flex-shrink: 0;
   width: 180px;
@@ -355,20 +324,17 @@ const mediaMeta = computed(() => {
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
-
 .poster-img {
   width: 100%;
   height: auto;
   display: block;
 }
-
 .poster-fallback {
   width: 100%;
   padding-bottom: 150%;
   background: linear-gradient(135deg, var(--color-cinema-dark-700), var(--color-cinema-dark-600));
   position: relative;
 }
-
 .poster-fallback svg {
   position: absolute;
   inset: 0;
@@ -377,12 +343,10 @@ const mediaMeta = computed(() => {
   height: 3rem;
   color: rgba(255,255,255,0.2);
 }
-
 .details-info {
   flex: 1;
   min-width: 0;
 }
-
 .details-title {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 3vw, 2.25rem);
@@ -391,7 +355,6 @@ const mediaMeta = computed(() => {
   line-height: 1.2;
   margin-bottom: 0.75rem;
 }
-
 .details-meta {
   display: flex;
   align-items: center;
@@ -399,23 +362,19 @@ const mediaMeta = computed(() => {
   flex-wrap: wrap;
   margin-bottom: 1rem;
 }
-
 .meta-year {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
-
 .meta-sep {
   color: var(--color-text-muted);
 }
-
 .meta-badge {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
 }
-
 .meta-quality {
   font-size: 0.75rem;
   font-weight: 700;
@@ -425,19 +384,16 @@ const mediaMeta = computed(() => {
   border-radius: 0.25rem;
   border: 1px solid rgba(245, 197, 24, 0.2);
 }
-
 .type-movie {
   background: rgba(229, 9, 20, 0.2);
   color: #ff6b6b;
   border: 1px solid rgba(229, 9, 20, 0.3);
 }
-
 .type-series {
   background: rgba(99, 102, 241, 0.2);
   color: #a5b4fc;
   border: 1px solid rgba(99, 102, 241, 0.3);
 }
-
 .details-overview {
   font-size: 0.875rem;
   line-height: 1.65;
@@ -448,12 +404,10 @@ const mediaMeta = computed(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 /* Progress */
 .progress-section {
   margin-bottom: 1.25rem;
 }
-
 .progress-track {
   height: 3px;
   background: rgba(255, 255, 255, 0.1);
@@ -461,17 +415,14 @@ const mediaMeta = computed(() => {
   margin-bottom: 0.375rem;
   overflow: hidden;
 }
-
 .progress-fill {
   height: 100%;
   background: var(--color-accent);
 }
-
 .progress-text {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
-
 /* Actions */
 .action-btns {
   display: flex;
@@ -479,40 +430,33 @@ const mediaMeta = computed(() => {
   flex-wrap: wrap;
   margin-bottom: 1.5rem;
 }
-
 .action-play svg { width: 1.125rem; height: 1.125rem; }
 .action-watchlist svg { width: 1rem; height: 1rem; }
-
 /* Meta table */
 .meta-table {
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
 }
-
 .meta-row {
   display: flex;
   gap: 0.75rem;
   font-size: 0.8125rem;
 }
-
 .meta-label {
   color: var(--color-text-muted);
   min-width: 80px;
   flex-shrink: 0;
 }
-
 .meta-value {
   color: var(--color-text-secondary);
 }
-
 /* RIGHT panel */
 .details-right {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
-
 .mini-player-area {
   position: relative;
   border-radius: 0.75rem;
@@ -522,13 +466,11 @@ const mediaMeta = computed(() => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
-
 .mini-player-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .mini-player-fallback {
   width: 100%;
   height: 100%;
@@ -537,13 +479,11 @@ const mediaMeta = computed(() => {
   align-items: center;
   justify-content: center;
 }
-
 .mini-player-fallback svg {
   width: 4rem;
   height: 4rem;
   color: rgba(255, 255, 255, 0.3);
 }
-
 .mini-player-overlay {
   position: absolute;
   inset: 0;
@@ -553,11 +493,9 @@ const mediaMeta = computed(() => {
   background: rgba(0, 0, 0, 0.3);
   transition: background var(--transition-fast);
 }
-
 .mini-player-area:hover .mini-player-overlay {
   background: rgba(0, 0, 0, 0.15);
 }
-
 .mini-play-btn {
   width: 4rem;
   height: 4rem;
@@ -569,18 +507,15 @@ const mediaMeta = computed(() => {
   box-shadow: 0 4px 24px rgba(229, 9, 20, 0.6);
   transition: transform var(--transition-fast);
 }
-
 .mini-player-area:hover .mini-play-btn {
   transform: scale(1.1);
 }
-
 .mini-play-btn svg {
   width: 1.75rem;
   height: 1.75rem;
   color: #fff;
   margin-left: 3px;
 }
-
 .mini-progress-bar {
   position: absolute;
   bottom: 0;
@@ -589,22 +524,18 @@ const mediaMeta = computed(() => {
   height: 3px;
   background: rgba(255,255,255,0.15);
 }
-
 .mini-progress-fill {
   height: 100%;
   background: var(--color-accent);
 }
-
 /* Right panel info */
 .right-panel-info {}
-
 .right-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: #fff;
   margin-bottom: 0.5rem;
 }
-
 .right-meta {
   display: flex;
   align-items: center;
@@ -613,7 +544,6 @@ const mediaMeta = computed(() => {
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
 }
-
 .right-overview {
   font-size: 0.8125rem;
   line-height: 1.6;
@@ -623,30 +553,24 @@ const mediaMeta = computed(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 /* Right actions */
 .right-actions {
   display: flex;
   gap: 0.625rem;
   flex-wrap: wrap;
 }
-
 .right-play-btn {
   padding: 0.6rem 1.25rem;
   font-size: 0.875rem;
 }
-
 .right-play-btn svg { width: 1rem; height: 1rem; }
-
 .right-watchlist-btn,
 .right-list-btn {
   padding: 0.6rem 1rem;
   font-size: 0.8125rem;
 }
-
 .right-watchlist-btn svg,
 .right-list-btn svg { width: 0.875rem; height: 0.875rem; }
-
 /* Right meta table */
 .right-meta-table {
   display: flex;
@@ -655,22 +579,18 @@ const mediaMeta = computed(() => {
   padding: 0.75rem 0;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
-
 .right-meta-row {
   display: flex;
   gap: 1rem;
   font-size: 0.8rem;
 }
-
 .right-meta-label {
   color: var(--color-text-muted);
   min-width: 70px;
 }
-
 .right-meta-value {
   color: var(--color-text-secondary);
 }
-
 /* Features grid */
 .features-grid {
   display: grid;
@@ -679,13 +599,11 @@ const mediaMeta = computed(() => {
   padding-top: 0.75rem;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
-
 .feature-item {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
 }
-
 .feature-item svg {
   width: 1.375rem;
   height: 1.375rem;
@@ -693,25 +611,21 @@ const mediaMeta = computed(() => {
   color: var(--color-accent);
   margin-top: 1px;
 }
-
 .feature-item div {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
 }
-
 .feature-item strong {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
-
 .feature-item span {
   font-size: 0.7rem;
   color: var(--color-text-muted);
   line-height: 1.4;
 }
-
 /* Responsive */
 @media (max-width: 1024px) {
   .details-body {
@@ -720,35 +634,28 @@ const mediaMeta = computed(() => {
     padding-top: 25vh;
     gap: 2rem;
   }
-
   .details-right {
     order: -1;
   }
-
   .mini-player-area {
     max-width: 480px;
   }
 }
-
 @media (max-width: 640px) {
   .details-left {
     flex-direction: column;
   }
-
   .poster-wrap {
     width: 140px;
   }
-
   .details-body {
     padding: 1rem 1rem 4rem;
     padding-top: 20vh;
   }
-
   .features-grid {
     grid-template-columns: 1fr;
   }
 }
-
 /* Episodes Section */
 .episodes-section {
   position: relative;
@@ -757,7 +664,6 @@ const mediaMeta = computed(() => {
   margin: 0 auto;
   padding: 0 3rem 4rem;
 }
-
 .episodes-header {
   display: flex;
   align-items: center;
@@ -766,18 +672,15 @@ const mediaMeta = computed(() => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 1rem;
 }
-
 .episodes-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
 }
-
 .season-selector {
   position: relative;
   min-width: 200px;
 }
-
 .season-select {
   appearance: none;
   width: 100%;
@@ -792,16 +695,13 @@ const mediaMeta = computed(() => {
   outline: none;
   transition: border-color var(--transition-fast);
 }
-
 .season-select:hover, .season-select:focus {
   border-color: rgba(255, 255, 255, 0.3);
 }
-
 .season-select option {
   background: var(--color-cinema-dark-900);
   color: #fff;
 }
-
 .select-icon {
   position: absolute;
   right: 1rem;
@@ -810,12 +710,10 @@ const mediaMeta = computed(() => {
   pointer-events: none;
   color: rgba(255, 255, 255, 0.5);
 }
-
 .select-icon svg {
   width: 1rem;
   height: 1rem;
 }
-
 .episodes-list {
   display: flex;
   gap: 1.25rem;
@@ -825,16 +723,13 @@ const mediaMeta = computed(() => {
   scrollbar-width: thin;
   scrollbar-color: var(--color-cinema-dark-500) transparent;
 }
-
 .episodes-list::-webkit-scrollbar {
   height: 6px;
 }
-
 .episodes-list::-webkit-scrollbar-thumb {
   background: var(--color-cinema-dark-500);
   border-radius: 10px;
 }
-
 .episode-card {
   flex: 0 0 280px;
   display: flex;
@@ -848,13 +743,11 @@ const mediaMeta = computed(() => {
   transition: all var(--transition-fast);
   scroll-snap-align: start;
 }
-
 .episode-card:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
   transform: translateX(4px);
 }
-
 .episode-thumb-wrap {
   position: relative;
   width: 100%;
@@ -864,18 +757,15 @@ const mediaMeta = computed(() => {
   overflow: hidden;
   background: #000;
 }
-
 .episode-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform var(--transition-fast);
 }
-
 .episode-card:hover .episode-thumb {
   transform: scale(1.05);
 }
-
 .episode-thumb-fallback {
   width: 100%;
   height: 100%;
@@ -884,13 +774,11 @@ const mediaMeta = computed(() => {
   justify-content: center;
   background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1));
 }
-
 .episode-thumb-fallback svg {
   width: 2rem;
   height: 2rem;
   color: rgba(255, 255, 255, 0.2);
 }
-
 .episode-play-overlay {
   position: absolute;
   inset: 0;
@@ -901,52 +789,44 @@ const mediaMeta = computed(() => {
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
-
 .episode-card:hover .episode-play-overlay {
   opacity: 1;
 }
-
 .episode-play-overlay svg {
   width: 2.5rem;
   height: 2.5rem;
   color: #fff;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
-
 .episode-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
 .episode-meta {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.5rem;
 }
-
 .episode-number {
   font-size: 1.125rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.5);
   min-width: 1.5rem;
 }
-
 .episode-title {
   font-size: 1rem;
   font-weight: 600;
   color: #fff;
   margin: 0;
 }
-
 .episode-runtime {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.4);
   margin-left: auto;
 }
-
 .episode-overview {
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
@@ -957,7 +837,6 @@ const mediaMeta = computed(() => {
   overflow: hidden;
   margin: 0;
 }
-
 .episodes-empty {
   padding: 3rem;
   text-align: center;
@@ -965,33 +844,27 @@ const mediaMeta = computed(() => {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 0.75rem;
 }
-
 @media (max-width: 1024px) {
   .episodes-section {
     padding: 0 1.5rem 4rem;
   }
 }
-
 @media (max-width: 640px) {
   .episodes-section {
     padding: 0 1rem 4rem;
   }
-  
   .episodes-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
   .season-selector {
     width: 100%;
   }
-
   .episode-card {
     flex-direction: column;
     gap: 1rem;
   }
-
   .episode-thumb-wrap {
     width: 100%;
   }

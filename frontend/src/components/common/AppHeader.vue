@@ -10,7 +10,6 @@
           <span class="logo-text">MediaStream</span>
         </router-link>
       </div>
-
       <!-- Desktop Navigation -->
       <nav class="desktop-nav">
         <router-link to="/" class="nav-link" active-class="nav-link-active">
@@ -23,7 +22,6 @@
           Series
         </router-link>
       </nav>
-
       <!-- Search Bar -->
       <div class="search-section">
         <div class="search-container">
@@ -49,7 +47,6 @@
           </button>
         </div>
       </div>
-
       <!-- Mobile Menu Toggle -->
       <button
         class="mobile-menu-toggle"
@@ -64,7 +61,6 @@
         </svg>
       </button>
     </div>
-
     <!-- Mobile Navigation Menu -->
     <transition name="mobile-menu">
       <nav v-if="isMobileMenuOpen" class="mobile-nav">
@@ -96,15 +92,12 @@
     </transition>
   </header>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
 const router = useRouter()
 const searchQuery = ref('')
 const isMobileMenuOpen = ref(false)
-
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
     router.push({
@@ -114,20 +107,16 @@ const handleSearch = () => {
     closeMobileMenu()
   }
 }
-
 const clearSearch = () => {
   searchQuery.value = ''
 }
-
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
-
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
 </script>
-
 <style scoped>
 .app-header {
   position: fixed;
@@ -141,7 +130,6 @@ const closeMobileMenu = () => {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
-
 .header-content {
   display: flex;
   align-items: center;
@@ -151,12 +139,10 @@ const closeMobileMenu = () => {
   padding: 1rem 2rem;
   gap: 2rem;
 }
-
 /* Logo Section */
 .logo-section {
   flex-shrink: 0;
 }
-
 .logo-link {
   display: flex;
   align-items: center;
@@ -165,29 +151,24 @@ const closeMobileMenu = () => {
   color: #ffffff;
   transition: opacity 0.2s ease;
 }
-
 .logo-link:hover {
   opacity: 0.8;
 }
-
 .logo-icon {
   width: 2rem;
   height: 2rem;
   color: #ef4444;
 }
-
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.025em;
 }
-
 /* Desktop Navigation */
 .desktop-nav {
   display: none;
   gap: 2rem;
 }
-
 .nav-link {
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
@@ -196,15 +177,12 @@ const closeMobileMenu = () => {
   transition: color 0.2s ease;
   position: relative;
 }
-
 .nav-link:hover {
   color: #ffffff;
 }
-
 .nav-link-active {
   color: #ffffff;
 }
-
 .nav-link-active::after {
   content: '';
   position: absolute;
@@ -214,20 +192,17 @@ const closeMobileMenu = () => {
   height: 2px;
   background: #ef4444;
 }
-
 /* Search Section */
 .search-section {
   flex: 1;
   max-width: 500px;
   display: none;
 }
-
 .search-container {
   position: relative;
   display: flex;
   align-items: center;
 }
-
 .search-icon {
   position: absolute;
   left: 1rem;
@@ -236,7 +211,6 @@ const closeMobileMenu = () => {
   color: rgba(255, 255, 255, 0.5);
   pointer-events: none;
 }
-
 .search-input {
   width: 100%;
   padding: 0.75rem 3rem 0.75rem 3rem;
@@ -247,17 +221,14 @@ const closeMobileMenu = () => {
   font-size: 0.875rem;
   transition: all 0.2s ease;
 }
-
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
-
 .search-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(239, 68, 68, 0.5);
 }
-
 .clear-button {
   position: absolute;
   right: 1rem;
@@ -270,16 +241,13 @@ const closeMobileMenu = () => {
   cursor: pointer;
   transition: color 0.2s ease;
 }
-
 .clear-button:hover {
   color: #ffffff;
 }
-
 .clear-button svg {
   width: 100%;
   height: 100%;
 }
-
 /* Mobile Menu Toggle */
 .mobile-menu-toggle {
   display: flex;
@@ -294,16 +262,13 @@ const closeMobileMenu = () => {
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
-
 .mobile-menu-toggle:hover {
   opacity: 0.7;
 }
-
 .mobile-menu-toggle svg {
   width: 1.5rem;
   height: 1.5rem;
 }
-
 /* Mobile Navigation */
 .mobile-nav {
   display: flex;
@@ -312,7 +277,6 @@ const closeMobileMenu = () => {
   background: rgba(15, 15, 15, 0.95);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .mobile-nav-link {
   padding: 1rem 0;
   color: rgba(255, 255, 255, 0.7);
@@ -322,57 +286,46 @@ const closeMobileMenu = () => {
   transition: color 0.2s ease;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .mobile-nav-link:hover {
   color: #ffffff;
 }
-
 .mobile-nav-link-active {
   color: #ef4444;
 }
-
 /* Mobile Menu Transition */
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {
   transition: all 0.3s ease;
 }
-
 .mobile-menu-enter-from,
 .mobile-menu-leave-to {
   opacity: 0;
   transform: translateY(-10px);
 }
-
 /* Tablet and up */
 @media (min-width: 768px) {
   .desktop-nav {
     display: flex;
   }
-
   .search-section {
     display: block;
   }
-
   .mobile-menu-toggle {
     display: none;
   }
-
   .mobile-nav {
     display: none;
   }
 }
-
 /* Desktop */
 @media (min-width: 1024px) {
   .header-content {
     padding: 1.25rem 3rem;
   }
-
   .search-section {
     max-width: 600px;
   }
 }
-
 /* Ultrawide */
 @media (min-width: 1920px) {
   .header-content {

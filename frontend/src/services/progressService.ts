@@ -1,7 +1,6 @@
 import apiClient from './api';
 import type { ProgressData } from '@/types/player';
 import type { UpdateProgressRequest, ContinueWatchingResponse } from '@/types/api';
-
 export async function getProgress(mediaId: string): Promise<ProgressData | null> {
   try {
     const response = await apiClient.get<ProgressData>(`/progress/${mediaId}`);
@@ -13,12 +12,10 @@ export async function getProgress(mediaId: string): Promise<ProgressData | null>
     throw error;
   }
 }
-
 export async function getContinueWatching(): Promise<ContinueWatchingResponse[]> {
   const response = await apiClient.get<ContinueWatchingResponse[]>('/media/continue-watching');
   return response.data;
 }
-
 export async function saveProgress(
   mediaId: string,
   data: UpdateProgressRequest

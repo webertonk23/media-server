@@ -1,5 +1,4 @@
 import type { MediaItem } from './media';
-
 export interface ApiError {
   message: string;
   status: number;

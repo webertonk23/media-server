@@ -20,18 +20,15 @@
               <path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
             </svg>
           </div>
-
           <!-- Gradient overlays -->
           <div class="gradient-left"></div>
           <div class="gradient-bottom"></div>
         </div>
-
         <!-- Content -->
         <div class="hero-content">
           <div class="hero-info">
             <!-- Title -->
             <h1 class="hero-title">{{ item.title }}</h1>
-
             <!-- Metadata row -->
             <div class="hero-meta">
               <span v-if="item.year" class="meta-item">{{ item.year }}</span>
@@ -46,10 +43,8 @@
                 {{ item.genres.join(', ') }}
               </span>
             </div>
-
             <!-- Overview -->
             <p v-if="item.overview" class="hero-overview">{{ item.overview }}</p>
-
             <!-- Actions -->
             <div class="hero-actions">
               <button class="btn btn-primary hero-btn-play" @click="$emit('play', item)">
@@ -71,7 +66,6 @@
         </div>
       </div>
     </div>
-
     <!-- Navigation Arrows -->
     <button v-if="featuredItems.length > 1" class="hero-arrow hero-arrow-left" @click="prevSlide">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -83,7 +77,6 @@
         <polyline points="9 18 15 12 9 6"/>
       </svg>
     </button>
-
     <!-- Dots navigation -->
     <div v-if="featuredItems.length > 1" class="hero-dots">
       <button
@@ -96,27 +89,20 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { MediaItem } from '@/types/media'
-
 interface Props {
   media: MediaItem
   allMedia?: MediaItem[]
 }
-
 const props = defineProps<Props>()
-
 defineEmits<{
   (e: 'play', media: MediaItem): void
   (e: 'more-info', media: MediaItem): void
 }>()
-
 const currentSlide = ref(0)
 let autoplayTimer: ReturnType<typeof setInterval> | null = null
-
-// Take up to 5 featured items
 const featuredItems = computed<(MediaItem & { duration?: string; genres?: string[] })[]>(() => {
   const items = props.allMedia?.slice(0, 5) || [props.media]
   return items.map(item => ({
@@ -125,7 +111,6 @@ const featuredItems = computed<(MediaItem & { duration?: string; genres?: string
     genres: undefined,
   }))
 })
-
 const typeLabel = (type: string) => {
   const map: Record<string, string> = {
     movie: 'Filme',
@@ -134,37 +119,30 @@ const typeLabel = (type: string) => {
   }
   return map[type] || type
 }
-
 const nextSlide = () => {
   currentSlide.value = (currentSlide.value + 1) % featuredItems.value.length
 }
-
 const prevSlide = () => {
   currentSlide.value = (currentSlide.value - 1 + featuredItems.value.length) % featuredItems.value.length
 }
-
 const goToSlide = (i: number) => {
   currentSlide.value = i
   resetAutoplay()
 }
-
 const startAutoplay = () => {
   if (featuredItems.value.length > 1) {
     autoplayTimer = setInterval(nextSlide, 6000)
   }
 }
-
 const resetAutoplay = () => {
   if (autoplayTimer) clearInterval(autoplayTimer)
   startAutoplay()
 }
-
 onMounted(startAutoplay)
 onUnmounted(() => {
   if (autoplayTimer) clearInterval(autoplayTimer)
 })
 </script>
-
 <style scoped>
 .hero-banner {
   position: relative;
@@ -174,7 +152,6 @@ onUnmounted(() => {
   max-height: 760px;
   overflow: hidden;
 }
-
 /* Slides Container */
 .hero-slides {
   display: flex;
@@ -182,26 +159,22 @@ onUnmounted(() => {
   height: 100%;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .hero-slide {
   min-width: 100%;
   height: 100%;
   position: relative;
 }
-
 /* Backdrop */
 .hero-backdrop {
   position: absolute;
   inset: 0;
 }
-
 .backdrop-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
 }
-
 .backdrop-fallback {
   width: 100%;
   height: 100%;
@@ -210,13 +183,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
 }
-
 .fallback-icon {
   width: 5rem;
   height: 5rem;
   color: rgba(255, 255, 255, 0.15);
 }
-
 .gradient-left {
   position: absolute;
   top: 0;
@@ -230,7 +201,6 @@ onUnmounted(() => {
     transparent 100%
   );
 }
-
 .gradient-bottom {
   position: absolute;
   bottom: 0;
@@ -243,7 +213,6 @@ onUnmounted(() => {
     transparent 100%
   );
 }
-
 /* Hero Content */
 .hero-content {
   position: absolute;
@@ -253,11 +222,9 @@ onUnmounted(() => {
   padding: 3rem 3rem 4rem;
   z-index: 5;
 }
-
 .hero-info {
   max-width: 580px;
 }
-
 .hero-title {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 3.5rem);
@@ -267,7 +234,6 @@ onUnmounted(() => {
   margin-bottom: 0.875rem;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
 }
-
 .hero-meta {
   display: flex;
   align-items: center;
@@ -275,41 +241,34 @@ onUnmounted(() => {
   gap: 0.375rem;
   margin-bottom: 1rem;
 }
-
 .meta-item {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
   font-weight: 400;
 }
-
 .meta-dot {
   color: var(--color-text-muted);
   font-size: 0.75rem;
 }
-
 .meta-genres {
   color: var(--color-text-secondary);
 }
-
 .type-badge {
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
 }
-
 .type-movie {
   background: rgba(229, 9, 20, 0.2);
   color: #ff6b6b;
   border: 1px solid rgba(229, 9, 20, 0.3);
 }
-
 .type-series {
   background: rgba(99, 102, 241, 0.2);
   color: #a5b4fc;
   border: 1px solid rgba(99, 102, 241, 0.3);
 }
-
 .hero-overview {
   font-size: 0.9375rem;
   line-height: 1.65;
@@ -321,21 +280,17 @@ onUnmounted(() => {
   overflow: hidden;
   max-width: 520px;
 }
-
 .hero-actions {
   display: flex;
   gap: 0.875rem;
   flex-wrap: wrap;
 }
-
 .hero-btn-play {
   min-width: 140px;
 }
-
 .hero-btn-info {
   min-width: 180px;
 }
-
 /* Navigation arrows */
 .hero-arrow {
   position: absolute;
@@ -354,18 +309,14 @@ onUnmounted(() => {
   transition: all var(--transition-fast);
   backdrop-filter: blur(8px);
 }
-
 .hero-arrow:hover {
   background: rgba(229, 9, 20, 0.7);
   border-color: var(--color-accent);
   transform: translateY(-60%) scale(1.1);
 }
-
 .hero-arrow svg { width: 1.25rem; height: 1.25rem; }
-
 .hero-arrow-left { left: 1.5rem; }
 .hero-arrow-right { right: 1.5rem; }
-
 /* Dots */
 .hero-dots {
   position: absolute;
@@ -376,7 +327,6 @@ onUnmounted(() => {
   gap: 0.5rem;
   z-index: 10;
 }
-
 .hero-dot {
   width: 2rem;
   height: 3px;
@@ -384,38 +334,31 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.3);
   transition: all var(--transition-fast);
 }
-
 .hero-dot-active {
   background: var(--color-accent);
   width: 2.5rem;
 }
-
 /* Responsive */
 @media (max-width: 768px) {
   .hero-banner {
     height: 60vh;
     min-height: 380px;
   }
-
   .hero-content {
     padding: 1.5rem 1.25rem 3rem;
   }
-
   .hero-title {
     font-size: 1.75rem;
   }
-
   .hero-overview {
     font-size: 0.875rem;
     -webkit-line-clamp: 2;
   }
-
   .hero-btn-play,
   .hero-btn-info {
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
   }
-
   .gradient-left {
     width: 100%;
     background: linear-gradient(

@@ -6,10 +6,8 @@
  * 
  * **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 5.4**
  */
-
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-
 /**
  * Responsive breakpoints in pixels
  * 
@@ -23,7 +21,6 @@ const BREAKPOINTS = {
   TABLET: 1024,
   DESKTOP: 1920,
 } as const;
-
 /**
  * UI store for managing responsive breakpoints and UI state
  * 
@@ -39,13 +36,11 @@ const BREAKPOINTS = {
  * - toggleControls: Toggle player controls visibility
  */
 export const useUiStore = defineStore('ui', () => {
-  // State
   const isMobile = ref<boolean>(false);
   const isTablet = ref<boolean>(false);
   const isDesktop = ref<boolean>(false);
   const isUltrawide = ref<boolean>(false);
   const showControls = ref<boolean>(true);
-
   /**
    * Update screen size breakpoint state based on window width
    * 
@@ -58,13 +53,13 @@ export const useUiStore = defineStore('ui', () => {
    * 
    * @example
    * ```typescript
-   * // Update based on current window size
+   * 
    * updateScreenSize();
    * 
-   * // Update with specific width (useful for testing)
+   * 
    * updateScreenSize(1920);
    * 
-   * // Check current breakpoint
+   * 
    * if (isMobile.value) {
    *   console.log('Mobile layout');
    * }
@@ -72,28 +67,19 @@ export const useUiStore = defineStore('ui', () => {
    */
   function updateScreenSize(width?: number): void {
     const windowWidth = width ?? window.innerWidth;
-
-    // Reset all flags
     isMobile.value = false;
     isTablet.value = false;
     isDesktop.value = false;
     isUltrawide.value = false;
-
-    // Set appropriate flag based on width
     if (windowWidth < BREAKPOINTS.MOBILE) {
-      // Mobile: < 768px
       isMobile.value = true;
     } else if (windowWidth < BREAKPOINTS.TABLET) {
-      // Tablet: 768px - 1023px
       isTablet.value = true;
     } else if (windowWidth < BREAKPOINTS.DESKTOP) {
-      // Desktop: 1024px - 1919px
       isDesktop.value = true;
     } else {
-      // Ultrawide: >= 1920px
       isUltrawide.value = true;
     }
-
     console.debug('[UI Store] Screen size updated:', {
       width: windowWidth,
       isMobile: isMobile.value,
@@ -102,7 +88,6 @@ export const useUiStore = defineStore('ui', () => {
       isUltrawide: isUltrawide.value,
     });
   }
-
   /**
    * Toggle player controls visibility
    * 
@@ -115,13 +100,13 @@ export const useUiStore = defineStore('ui', () => {
    * 
    * @example
    * ```typescript
-   * // Toggle controls visibility
+   * 
    * toggleControls();
    * 
-   * // Explicitly show controls
+   * 
    * toggleControls(true);
    * 
-   * // Explicitly hide controls
+   * 
    * toggleControls(false);
    * ```
    */
@@ -131,10 +116,8 @@ export const useUiStore = defineStore('ui', () => {
     } else {
       showControls.value = !showControls.value;
     }
-
     console.debug('[UI Store] Controls visibility:', showControls.value);
   }
-
   /**
    * Initialize UI store
    * 
@@ -143,23 +126,19 @@ export const useUiStore = defineStore('ui', () => {
    * 
    * @example
    * ```typescript
-   * // Initialize on app mount
+   * 
    * initialize();
    * ```
    */
   function initialize(): void {
     updateScreenSize();
   }
-
   return {
-    // State
     isMobile,
     isTablet,
     isDesktop,
     isUltrawide,
     showControls,
-
-    // Actions
     updateScreenSize,
     toggleControls,
     initialize,

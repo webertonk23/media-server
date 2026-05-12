@@ -31,36 +31,28 @@ var SupportedExtensions = []string{
 
 func ScanDirectory(rootPath string) ([]ScannedFile, error) {
 	var files []ScannedFile
-
 	err := filepath.Walk(
 		rootPath,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-
 			if info.IsDir() {
 				return nil
 			}
-
 			ext := strings.ToLower(filepath.Ext(path))
-
 			if !isSupportedExtension(ext) {
 				return nil
 			}
-
-			if strings.HasPrefix(info.Name(), "output.") || strings.HasPrefix(info.Name(), "transcoding_") {
+			if strings.HasPrefix(info.Name(), "proc_") {
 				return nil
 			}
-
 			filename := strings.TrimSuffix(info.Name(), ext)
-
 			fingerprint := generateFingerprint(
 				path,
 				info.Size(),
 				info.ModTime().String(),
 			)
-
 			files = append(files, ScannedFile{
 				Filename:    filename,
 				Path:        path,
@@ -69,18 +61,14 @@ func ScanDirectory(rootPath string) ([]ScannedFile, error) {
 				Fingerprint: fingerprint,
 				Extension:   ext,
 			})
-
 			return nil
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	return files, nil
 }
-
 func isSupportedExtension(ext string) bool {
 	for _, supported := range SupportedExtensions {
 		if ext == supported {
@@ -89,7 +77,6 @@ func isSupportedExtension(ext string) bool {
 	}
 	return false
 }
-
 func generateFingerprint(
 	path string,
 	size int64,

@@ -12,13 +12,11 @@
           />
         </svg>
       </div>
-
       <!-- Error Message -->
       <div class="error-text">
         <h3 class="error-title">{{ errorTitle }}</h3>
         <p class="error-description">{{ errorMessage }}</p>
       </div>
-
       <!-- Retry Button (optional) -->
       <button
         v-if="onRetry"
@@ -38,47 +36,37 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
-
 interface Props {
   error?: string | Error | null
   title?: string
   onRetry?: (() => void) | null
 }
-
 const props = withDefaults(defineProps<Props>(), {
   error: null,
   title: 'Something went wrong',
   onRetry: null
 })
-
 const errorTitle = computed(() => props.title)
-
 const errorMessage = computed(() => {
   if (!props.error) {
     return 'An unexpected error occurred. Please try again.'
   }
-
   if (typeof props.error === 'string') {
     return props.error
   }
-
   if (props.error instanceof Error) {
     return props.error.message
   }
-
   return 'An unexpected error occurred. Please try again.'
 })
-
 const handleRetry = () => {
   if (props.onRetry) {
     props.onRetry()
   }
 }
 </script>
-
 <style scoped>
 .error-message {
   display: flex;
@@ -87,7 +75,6 @@ const handleRetry = () => {
   padding: 2rem;
   min-height: 200px;
 }
-
 .error-content {
   display: flex;
   flex-direction: column;
@@ -101,7 +88,6 @@ const handleRetry = () => {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
-
 .error-icon {
   width: 4rem;
   height: 4rem;
@@ -109,31 +95,26 @@ const handleRetry = () => {
   color: #ef4444;
   animation: error-pulse 2s ease-in-out infinite;
 }
-
 .error-icon svg {
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5));
 }
-
 .error-text {
   margin-bottom: 1.5rem;
 }
-
 .error-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 0.75rem 0;
 }
-
 .error-description {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
   margin: 0;
 }
-
 .retry-button {
   display: flex;
   align-items: center;
@@ -148,23 +129,19 @@ const handleRetry = () => {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .retry-button:hover {
   background: rgba(239, 68, 68, 0.3);
   border-color: #ef4444;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
-
 .retry-button:active {
   transform: translateY(0);
 }
-
 .retry-icon {
   width: 1.25rem;
   height: 1.25rem;
 }
-
 @keyframes error-pulse {
   0%, 100% {
     opacity: 1;
@@ -173,31 +150,25 @@ const handleRetry = () => {
     opacity: 0.7;
   }
 }
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .error-message {
     padding: 1rem;
   }
-
   .error-content {
     padding: 1.5rem;
   }
-
   .error-icon {
     width: 3rem;
     height: 3rem;
     margin-bottom: 1rem;
   }
-
   .error-title {
     font-size: 1.25rem;
   }
-
   .error-description {
     font-size: 0.875rem;
   }
-
   .retry-button {
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;

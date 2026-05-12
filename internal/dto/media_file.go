@@ -1,7 +1,5 @@
 package dto
-
 import "time"
-
 type MediaFileResponse struct {
 	ID           uint      `json:"id"`
 	ULID         string    `json:"ulid"`

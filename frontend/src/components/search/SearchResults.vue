@@ -5,12 +5,11 @@
       <LoadingSpinner size="large" />
       <p class="loading-text">Searching...</p>
     </div>
-
     <!-- No Results State (Requirement 8.4) -->
     <div v-else-if="!loading && results.length === 0 && hasSearched" class="empty-state">
       <svg
         class="empty-icon"
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="http:
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -25,7 +24,6 @@
       <h3 class="empty-title">No results found</h3>
       <p class="empty-message">Try searching with different keywords</p>
     </div>
-
     <!-- Search Results Grid (Requirement 8.3) -->
     <div v-else-if="results.length > 0" class="results-container">
       <h2 class="results-title">Search Results ({{ results.length }})</h2>
@@ -35,12 +33,11 @@
         @media-click="handleMediaClick"
       />
     </div>
-
     <!-- Initial State (before any search) -->
     <div v-else class="initial-state">
       <svg
         class="initial-icon"
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns="http:
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -56,41 +53,32 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import type { MediaItem } from '@/types/media'
 import MediaGrid from '@/components/media/MediaGrid.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-
 interface Props {
   results: MediaItem[]
   loading?: boolean
   hasSearched?: boolean
 }
-
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
   hasSearched: false
 })
-
 interface Emits {
   (e: 'media-click', media: MediaItem): void
 }
-
 const emit = defineEmits<Emits>()
-
-// Handle media card click
 const handleMediaClick = (media: MediaItem) => {
   emit('media-click', media)
 }
 </script>
-
 <style scoped>
 .search-results {
   width: 100%;
   min-height: 400px;
 }
-
 /* Loading State */
 .loading-container {
   display: flex;
@@ -100,13 +88,11 @@ const handleMediaClick = (media: MediaItem) => {
   min-height: 400px;
   gap: 1.5rem;
 }
-
 .loading-text {
   font-size: 1.125rem;
   color: #9ca3af;
   margin: 0;
 }
-
 /* Empty State (No Results) */
 .empty-state {
   display: flex;
@@ -117,7 +103,6 @@ const handleMediaClick = (media: MediaItem) => {
   padding: 2rem;
   text-align: center;
 }
-
 .empty-icon {
   width: 5rem;
   height: 5rem;
@@ -125,20 +110,17 @@ const handleMediaClick = (media: MediaItem) => {
   opacity: 0.6;
   margin-bottom: 1.5rem;
 }
-
 .empty-title {
   font-size: 1.5rem;
   font-weight: 600;
   color: #e5e7eb;
   margin: 0 0 0.5rem 0;
 }
-
 .empty-message {
   font-size: 1rem;
   color: #9ca3af;
   margin: 0;
 }
-
 /* Initial State (Before Search) */
 .initial-state {
   display: flex;
@@ -149,7 +131,6 @@ const handleMediaClick = (media: MediaItem) => {
   padding: 2rem;
   text-align: center;
 }
-
 .initial-icon {
   width: 4rem;
   height: 4rem;
@@ -157,18 +138,15 @@ const handleMediaClick = (media: MediaItem) => {
   opacity: 0.5;
   margin-bottom: 1rem;
 }
-
 .initial-message {
   font-size: 1.125rem;
   color: #6b7280;
   margin: 0;
 }
-
 /* Results Container */
 .results-container {
   width: 100%;
 }
-
 .results-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -176,7 +154,6 @@ const handleMediaClick = (media: MediaItem) => {
   margin: 0 0 2rem 0;
   padding: 0 0.5rem;
 }
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .empty-icon {
@@ -184,34 +161,27 @@ const handleMediaClick = (media: MediaItem) => {
     height: 4rem;
     margin-bottom: 1rem;
   }
-
   .empty-title {
     font-size: 1.25rem;
   }
-
   .empty-message {
     font-size: 0.875rem;
   }
-
   .initial-icon {
     width: 3rem;
     height: 3rem;
   }
-
   .initial-message {
     font-size: 1rem;
   }
-
   .results-title {
     font-size: 1.25rem;
     margin-bottom: 1.5rem;
   }
-
   .loading-text {
     font-size: 1rem;
   }
 }
-
 /* Cinematic theme enhancements */
 .empty-state,
 .initial-state {
@@ -222,7 +192,6 @@ const handleMediaClick = (media: MediaItem) => {
   );
   border-radius: 1rem;
 }
-
 .results-title {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }

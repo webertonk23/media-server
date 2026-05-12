@@ -6,11 +6,9 @@
  * 
  * **Validates: Requirements 2.1, 4.1, 8.2, 16.3**
  */
-
 import apiClient from './api';
 import type { MediaItem, PaginatedResponse } from '@/types/media';
 import type { SearchParams } from '@/types/api';
-
 /**
  * Get paginated media items with optional filtering
  * 
@@ -27,10 +25,10 @@ import type { SearchParams } from '@/types/api';
  * 
  * @example
  * ```typescript
- * // Get first page of all media
+ * 
  * const result = await getMedia({ page: 1, limit: 20 });
  * 
- * // Search for movies
+ * 
  * const movies = await getMedia({ search: 'Matrix', type: 'movie' });
  * ```
  */
@@ -43,10 +41,8 @@ export async function getMedia(params: SearchParams = {}): Promise<PaginatedResp
       type: params.type || '',
     },
   });
-  
   return response.data;
 }
-
 /**
  * Get a specific media item by ID
  * 
@@ -66,10 +62,8 @@ export async function getMedia(params: SearchParams = {}): Promise<PaginatedResp
  */
 export async function getMediaById(id: string): Promise<MediaItem> {
   const response = await apiClient.get<MediaItem>(`/media/${id}`);
-  
   return response.data;
 }
-
 /**
  * Get paginated movies with optional filtering
  * 
@@ -84,10 +78,10 @@ export async function getMediaById(id: string): Promise<MediaItem> {
  * 
  * @example
  * ```typescript
- * // Get first page of movies
+ * 
  * const movies = await getMovies({ page: 1, limit: 20 });
  * 
- * // Search for specific movies
+ * 
  * const results = await getMovies({ search: 'Inception' });
  * ```
  */
@@ -99,10 +93,8 @@ export async function getMovies(params: SearchParams = {}): Promise<PaginatedRes
       search: params.search || '',
     },
   });
-  
   return response.data;
 }
-
 /**
  * Search media items by query string
  * 
@@ -118,10 +110,10 @@ export async function getMovies(params: SearchParams = {}): Promise<PaginatedRes
  * 
  * @example
  * ```typescript
- * // Search for media containing "Star Wars"
+ * 
  * const results = await searchMedia('Star Wars', 1);
  * 
- * // Get second page of results
+ * 
  * const nextPage = await searchMedia('Star Wars', 2);
  * ```
  */
@@ -132,7 +124,6 @@ export async function searchMedia(query: string, page: number = 1): Promise<Pagi
     limit: 20,
   });
 }
-
 /**
  * Get seasons for a series
  * 
@@ -143,7 +134,6 @@ export async function getSeriesSeasons(seriesId: string) {
   const response = await apiClient.get(`/series/${seriesId}/seasons`);
   return response.data;
 }
-
 /**
  * Get episodes for a season
  * 

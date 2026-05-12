@@ -10,7 +10,6 @@
         </svg>
       </router-link>
     </div>
-
     <!-- Scrollable Container -->
     <div class="row-wrapper">
       <!-- Left Arrow -->
@@ -24,7 +23,6 @@
           <polyline points="15 18 9 12 15 6"/>
         </svg>
       </button>
-
       <!-- Cards Container -->
       <div ref="scrollRef" class="row-scroll" @scroll="updateBtns">
         <div class="row-cards">
@@ -42,7 +40,6 @@
           </div>
         </div>
       </div>
-
       <!-- Right Arrow -->
       <button
         v-if="showRightBtn"
@@ -57,48 +54,37 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import type { MediaItem } from '@/types/media'
 import MediaCard from './MediaCard.vue'
-
 interface Props {
   title: string
   items: MediaItem[]
   viewAllPath?: string
-  progressMap?: Record<string, number> // mediaId -> percentage
+  progressMap?: Record<string, number> 
 }
-
 const props = defineProps<Props>()
-
 defineEmits<{
   (e: 'media-click', media: MediaItem): void
 }>()
-
 const scrollRef = ref<HTMLElement | null>(null)
 const showLeftBtn = ref(false)
 const showRightBtn = ref(false)
-
 const getProgress = (id: string) => props.progressMap?.[id]
-
 const updateBtns = () => {
   const el = scrollRef.value
   if (!el) return
   showLeftBtn.value = el.scrollLeft > 10
   showRightBtn.value = el.scrollLeft < el.scrollWidth - el.clientWidth - 10
 }
-
 const scrollLeft = () => {
   scrollRef.value?.scrollBy({ left: -(scrollRef.value.clientWidth * 0.75), behavior: 'smooth' })
 }
-
 const scrollRight = () => {
   scrollRef.value?.scrollBy({ left: scrollRef.value.clientWidth * 0.75, behavior: 'smooth' })
 }
-
 let resizeObs: ResizeObserver | null = null
-
 onMounted(() => {
   updateBtns()
   if (scrollRef.value) {
@@ -107,18 +93,15 @@ onMounted(() => {
   }
   window.addEventListener('resize', updateBtns)
 })
-
 onUnmounted(() => {
   resizeObs?.disconnect()
   window.removeEventListener('resize', updateBtns)
 })
 </script>
-
 <style scoped>
 .media-row {
   margin-bottom: 2.5rem;
 }
-
 /* Header */
 .row-header {
   display: flex;
@@ -127,14 +110,12 @@ onUnmounted(() => {
   padding: 0 2rem;
   margin-bottom: 1rem;
 }
-
 .row-title {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
-
 .view-all-link {
   display: flex;
   align-items: center;
@@ -146,26 +127,21 @@ onUnmounted(() => {
   transition: opacity var(--transition-fast);
   white-space: nowrap;
 }
-
 .view-all-link:hover {
   opacity: 0.8;
 }
-
 .view-all-link svg {
   width: 0.875rem;
   height: 0.875rem;
   transition: transform var(--transition-fast);
 }
-
 .view-all-link:hover svg {
   transform: translateX(3px);
 }
-
 /* Wrapper */
 .row-wrapper {
   position: relative;
 }
-
 /* Scroll container */
 .row-scroll {
   overflow-x: auto;
@@ -173,14 +149,11 @@ onUnmounted(() => {
   scrollbar-width: none;
   padding: 0.5rem 2rem 1rem;
 }
-
 .row-scroll::-webkit-scrollbar { display: none; }
-
 .row-cards {
   display: flex;
   gap: 0.875rem;
 }
-
 /* Individual card wrapper */
 .row-card-wrapper {
   flex-shrink: 0;
@@ -188,12 +161,10 @@ onUnmounted(() => {
   animation: fadeIn 0.4s ease both;
   animation-delay: var(--delay, 0s);
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 /* Scroll Buttons */
 .scroll-btn {
   position: absolute;
@@ -213,56 +184,45 @@ onUnmounted(() => {
   backdrop-filter: blur(8px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
-
 .scroll-btn:hover {
   background: var(--color-accent);
   border-color: var(--color-accent);
   box-shadow: 0 4px 20px var(--color-accent-glow);
   transform: translateY(-60%) scale(1.1);
 }
-
 .scroll-btn svg {
   width: 1.125rem;
   height: 1.125rem;
 }
-
 .scroll-btn-left { left: 0.5rem; }
 .scroll-btn-right { right: 0.5rem; }
-
 /* Responsive */
 @media (min-width: 768px) {
   .row-card-wrapper {
     width: 180px;
   }
 }
-
 @media (min-width: 1280px) {
   .row-card-wrapper {
     width: 200px;
   }
-
   .row-cards {
     gap: 1rem;
   }
 }
-
 @media (max-width: 640px) {
   .row-header {
     padding: 0 1rem;
   }
-
   .row-scroll {
     padding: 0.5rem 1rem 1rem;
   }
-
   .row-card-wrapper {
     width: 130px;
   }
-
   .row-cards {
     gap: 0.625rem;
   }
-
   .scroll-btn {
     display: none;
   }

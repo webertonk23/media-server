@@ -34,76 +34,52 @@ var garbageTokens = []string{
 	"5.1",
 	"7.1",
 	"compacto",
+	"comando.to",
+	"comandoplay.com",
 }
 
 func ParseMovieFilename(path string) ParsedMovie {
 	filename := filepath.Base(path)
 	ext := filepath.Ext(filename)
 	cleanName := strings.TrimSuffix(filename, ext)
-
-	// 1. Extrair qualidade do nome original
 	quality := extractQuality(cleanName)
-
-	// 2. Tentar encontrar o ano e separar o título
-	// O padrão mais comum é Titulo.Ano.Metadata
 	reYear := regexp.MustCompile(`(?i)[.\s\(\[]+(19\d{2}|20\d{2})[.\s\)\]]*`)
 	loc := reYear.FindStringIndex(cleanName)
-
 	var title string
 	var year int
-
 	if loc != nil {
-		// Título é tudo antes do ano
 		title = cleanName[:loc[0]]
-		
-		// Extrair o ano do match
 		yearMatch := reYear.FindStringSubmatch(cleanName[loc[0]:loc[1]])
 		if len(yearMatch) > 1 {
 			year, _ = strconv.Atoi(yearMatch[1])
 		}
 	} else {
-		// Fallback se não achar ano: remover tokens conhecidos
 		title = removeGarbage(cleanName)
 	}
-
-	// 3. Limpeza final do título
 	title = normalizeSeparators(title)
 	title = cleanSpaces(title)
-
 	return ParsedMovie{
 		Title:   title,
 		Year:    year,
 		Quality: quality,
 	}
 }
-
 func normalizeSeparators(value string) string {
-
 	value = strings.ReplaceAll(value, ".", " ")
 	value = strings.ReplaceAll(value, "_", " ")
-
 	return value
 }
-
 func extractYear(value string) int {
-
 	re := regexp.MustCompile(`\b(19\d{2}|20\d{2})\b`)
-
 	match := re.FindStringSubmatch(value)
-
 	if len(match) < 2 {
 		return 0
 	}
-
 	year, _ := strconv.Atoi(match[1])
-
 	return year
 }
-
 func extractQuality(value string) string {
 	lower := strings.ToLower(value)
-
-	// Ordem de prioridade: 4K > 2160p > 1080p > 720p
 	if strings.Contains(lower, "4k") || strings.Contains(lower, "2160p") {
 		return "4K"
 	}
@@ -113,48 +89,30 @@ func extractQuality(value string) string {
 	if strings.Contains(lower, "720p") {
 		return "720p"
 	}
-
 	return "SD"
 }
-
 func removeYear(value string) string {
-
 	re := regexp.MustCompile(`\b(19\d{2}|20\d{2})\b`)
-
 	return re.ReplaceAllString(value, "")
 }
-
 func removeGarbage(value string) string {
-
 	lower := strings.ToLower(value)
-
 	for _, token := range garbageTokens {
-
 		re := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(token) + `\b`)
-
 		lower = re.ReplaceAllString(lower, "")
 	}
-
 	return lower
 }
-
 func cleanSpaces(value string) string {
-
 	re := regexp.MustCompile(`\s+`)
-
 	value = re.ReplaceAllString(value, " ")
-
 	value = strings.TrimSpace(value)
-
 	return titleCase(value)
 }
-
-// titleCase capitaliza a primeira letra de cada palavra
 func titleCase(value string) string {
 	words := strings.Fields(value)
 	for i, word := range words {
 		if len(word) > 0 {
-			// Capitalizar primeira letra, manter o resto como está
 			runes := []rune(word)
 			runes[0] = []rune(strings.ToUpper(string(runes[0])))[0]
 			words[i] = string(runes)

@@ -6,9 +6,7 @@
  * 
  * **Validates: Requirements 2.5, 11.2**
  */
-
 import { ref, onMounted, onUnmounted } from 'vue';
-
 /**
  * Options for configuring the infinite scroll behavior
  */
@@ -19,20 +17,17 @@ export interface UseInfiniteScrollOptions {
    * @default '200px' - triggers 200px before sentinel is visible
    */
   rootMargin?: string;
-
   /**
    * Intersection threshold (0.0 to 1.0)
    * @default 0.0 - triggers as soon as any part of sentinel is visible
    */
   threshold?: number;
-
   /**
    * Whether infinite scroll is enabled
    * @default true
    */
   enabled?: boolean;
 }
-
 /**
  * Composable for implementing infinite scroll with Intersection Observer
  * 
@@ -59,7 +54,7 @@ export interface UseInfiniteScrollOptions {
  * };
  * 
  * const { sentinelRef, isLoading } = useInfiniteScroll(loadMore, {
- *   rootMargin: '200px', // Trigger 200px before reaching bottom
+ *   rootMargin: '200px', 
  * });
  * </script>
  * 
@@ -81,16 +76,9 @@ export function useInfiniteScroll(
     threshold = 0.0,
     enabled = true,
   } = options;
-
-  // Ref to the sentinel element that triggers loading
   const sentinelRef = ref<HTMLElement | null>(null);
-
-  // Loading state to prevent multiple simultaneous loads
   const isLoading = ref(false);
-
-  // Intersection observer instance
   let observer: IntersectionObserver | null = null;
-
   /**
    * Handle intersection observer callback
    * 
@@ -103,11 +91,8 @@ export function useInfiniteScroll(
    */
   const handleIntersection = async (entries: IntersectionObserverEntry[]) => {
     const [entry] = entries;
-
-    // Only trigger if sentinel is intersecting, not already loading, and enabled
     if (entry && entry.isIntersecting && !isLoading.value && enabled) {
       isLoading.value = true;
-
       try {
         await callback();
       } catch (error) {
@@ -117,7 +102,6 @@ export function useInfiniteScroll(
       }
     }
   };
-
   /**
    * Initialize the intersection observer
    * 
@@ -130,24 +114,18 @@ export function useInfiniteScroll(
       console.warn('[useInfiniteScroll] Sentinel element not found');
       return;
     }
-
-    // Create intersection observer with configured options
     observer = new IntersectionObserver(handleIntersection, {
-      root: null, // Use viewport as root
+      root: null, 
       rootMargin,
       threshold,
     });
-
-    // Start observing the sentinel element
     observer.observe(sentinelRef.value);
-
     console.debug('[useInfiniteScroll] Observer initialized', {
       rootMargin,
       threshold,
       enabled,
     });
   };
-
   /**
    * Disconnect the intersection observer
    * 
@@ -160,7 +138,6 @@ export function useInfiniteScroll(
       console.debug('[useInfiniteScroll] Observer disconnected');
     }
   };
-
   /**
    * Reset the loading state
    * 
@@ -169,21 +146,18 @@ export function useInfiniteScroll(
   const reset = () => {
     isLoading.value = false;
   };
-
   /**
    * Initialize observer on mount
    * 
    * Sets up the intersection observer when the component mounts.
    */
   onMounted(() => {
-    // Use nextTick to ensure sentinel element is rendered
     setTimeout(() => {
       if (sentinelRef.value) {
         initObserver();
       }
     }, 0);
   });
-
   /**
    * Cleanup on unmount
    * 
@@ -192,30 +166,25 @@ export function useInfiniteScroll(
   onUnmounted(() => {
     disconnectObserver();
   });
-
   return {
     /**
      * Ref to attach to the sentinel element in the template
      * This element should be placed at the bottom of the scrollable content
      */
     sentinelRef,
-
     /**
      * Loading state indicating whether content is currently being loaded
      * Use this to show loading indicators or prevent duplicate requests
      */
     isLoading,
-
     /**
      * Manually reset the loading state
      */
     reset,
-
     /**
      * Manually disconnect the observer (useful for conditional infinite scroll)
      */
     disconnect: disconnectObserver,
-
     /**
      * Manually reinitialize the observer (useful after disconnect)
      */

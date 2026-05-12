@@ -1,5 +1,4 @@
 import { ref, watch, type Ref } from 'vue'
-
 /**
  * Composable for debouncing a reactive value
  * 
@@ -13,7 +12,7 @@ import { ref, watch, type Ref } from 'vue'
  * const { debouncedValue, cancel } = useDebounce(searchQuery, 300)
  * 
  * watch(debouncedValue, (newValue) => {
- *   // This will only trigger 300ms after the user stops typing
+ *   
  *   performSearch(newValue)
  * })
  * ```
@@ -21,7 +20,6 @@ import { ref, watch, type Ref } from 'vue'
 export function useDebounce<T>(value: Ref<T>, delay: number = 300) {
   const debouncedValue = ref<T>(value.value) as Ref<T>
   let timeoutId: ReturnType<typeof setTimeout> | null = null
-
   /**
    * Cancel the pending debounced update
    */
@@ -31,8 +29,6 @@ export function useDebounce<T>(value: Ref<T>, delay: number = 300) {
       timeoutId = null
     }
   }
-
-  // Watch the input value and debounce updates
   watch(
     value,
     (newValue) => {
@@ -44,7 +40,6 @@ export function useDebounce<T>(value: Ref<T>, delay: number = 300) {
     },
     { immediate: false }
   )
-
   return {
     debouncedValue,
     cancel

@@ -1,20 +1,16 @@
 package models
-
 import (
 	"crypto/rand"
 	"time"
-
 	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
-
 const (
 	FileStatusPending    = "pending"
 	FileStatusProcessing = "transcoding"
 	FileStatusCompleted  = "completed"
 	FileStatusError      = "error"
 )
-
 type MediaFile struct {
 	ID           uint      `gorm:"primaryKey"`
 	ULID         string    `gorm:"column:ulid;uniqueIndex;size:26;not null"`
@@ -32,8 +28,6 @@ type MediaFile struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
-
-// BeforeCreate hook para gerar ULID automaticamente
 func (m *MediaFile) BeforeCreate(tx *gorm.DB) error {
 	if m.ULID == "" {
 		entropy := ulid.Monotonic(rand.Reader, 0)

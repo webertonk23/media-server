@@ -5,7 +5,6 @@
         <h1 class="settings-title">Configurações</h1>
         <p class="settings-subtitle">Gerencie sua experiência no MediaServer</p>
       </div>
-
       <div class="settings-sections">
         <div class="settings-section">
           <h2 class="section-title">
@@ -47,7 +46,6 @@
             </div>
           </div>
         </div>
-
         <div class="settings-section">
           <h2 class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -91,7 +89,6 @@
             </div>
           </div>
         </div>
-
         <div class="settings-section">
           <h2 class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -121,7 +118,6 @@
           </div>
         </div>
       </div>
-
       <div v-if="scanMsg" class="scan-toast" :class="scanMsgType">
         {{ scanMsg }}
       </div>
@@ -129,26 +125,22 @@
     <FolderBrowser :show="showBrowser" @close="showBrowser = false" @select="handleSelect" />
   </DefaultLayout>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import apiClient from '@/services/api'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import FolderBrowser from '@/components/common/FolderBrowser.vue'
-
 const showBrowser = ref(false)
 const targetConfig = ref<'movie' | 'series'>('movie')
 const config = ref({ movie_path: '', series_path: '', scan_interval: 1 })
 const scanning = ref(false)
 const scanMsg = ref('')
 const scanMsgType = ref<'success' | 'error'>('success')
-
 const notify = (msg: string, type: 'success' | 'error' = 'success') => {
   scanMsg.value = msg
   scanMsgType.value = type
   setTimeout(() => { scanMsg.value = '' }, 3500)
 }
-
 const fetchSettings = async () => {
   try {
     const res = await apiClient.get('/settings')
@@ -163,9 +155,7 @@ const fetchSettings = async () => {
     console.error('Falha ao carregar configurações', e)
   }
 }
-
 onMounted(fetchSettings)
-
 const saveConfig = async () => {
   try {
     await apiClient.post('/settings', config.value)
@@ -174,18 +164,15 @@ const saveConfig = async () => {
     notify('Erro ao salvar configurações', 'error')
   }
 }
-
 const openBrowser = (target: 'movie' | 'series') => {
   targetConfig.value = target
   showBrowser.value = true
 }
-
 const handleSelect = (path: string) => {
   if (targetConfig.value === 'movie') config.value.movie_path = path
   else config.value.series_path = path
   showBrowser.value = false
 }
-
 const runScan = async (endpoint: string, label: string) => {
   if (scanning.value) return
   scanning.value = true
@@ -198,27 +185,22 @@ const runScan = async (endpoint: string, label: string) => {
     scanning.value = false
   }
 }
-
 const scanAll = () => runScan('/scan', 'Scan completo')
 const scanMovies = () => runScan('/scan/movies', 'Scan de filmes')
 const scanSeries = () => runScan('/scan/series', 'Scan de séries')
 </script>
-
 <style scoped>
 .settings-page { padding: 2rem; min-height: 100vh; max-width: 860px; }
 .settings-header { margin-bottom: 2.5rem; }
 .settings-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; margin-bottom: 0.375rem; }
 .settings-subtitle { font-size: 0.9rem; color: var(--color-text-muted); }
-
 .settings-sections { display: flex; flex-direction: column; gap: 2rem; }
-
 .settings-section {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 0.875rem;
   overflow: hidden;
 }
-
 .section-title {
   display: flex;
   align-items: center;
@@ -231,9 +213,7 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
   background: rgba(255,255,255,0.02);
 }
 .section-title svg { width: 1.125rem; height: 1.125rem; color: var(--color-accent); }
-
 .settings-items { display: flex; flex-direction: column; }
-
 .settings-item {
   display: flex;
   align-items: center;
@@ -243,11 +223,9 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .settings-item:last-child { border-bottom: none; }
-
 .item-info { flex: 1; min-width: 0; }
 .item-label { font-size: 0.9rem; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.2rem; }
 .item-desc { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.4; }
-
 .input-group { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
 .settings-input {
   background: rgba(0, 0, 0, 0.4);
@@ -263,10 +241,8 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
 }
 .settings-input:focus { border-color: var(--color-accent); }
 .btn-small { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
-
 .spin-icon { width: 1rem; height: 1rem; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
 .about-item { gap: 1.25rem; }
 .about-logo {
   width: 3rem; height: 3rem;
@@ -286,7 +262,6 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
   border-radius: 0.25rem;
   color: var(--color-text-secondary);
 }
-
 .scan-toast {
   position: fixed;
   bottom: 2rem;
@@ -302,7 +277,6 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
 .scan-toast.success { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80; }
 .scan-toast.error { background: rgba(229, 9, 20, 0.15); border: 1px solid rgba(229, 9, 20, 0.3); color: #ff6b6b; }
 @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 @media (max-width: 640px) {
   .settings-page { padding: 1rem; }
   .settings-title { font-size: 1.5rem; }

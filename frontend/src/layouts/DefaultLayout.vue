@@ -15,7 +15,6 @@
           </div>
         </router-link>
       </div>
-
       <!-- Navigation -->
       <nav class="sidebar-nav">
         <div class="nav-section">
@@ -25,14 +24,12 @@
             </svg>
             <span class="nav-label">Início</span>
           </router-link>
-
           <router-link to="/movies" class="nav-item" active-class="nav-item-active" title="Filmes">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
             </svg>
             <span class="nav-label">Filmes</span>
           </router-link>
-
           <router-link to="/series" class="nav-item" active-class="nav-item-active" title="Séries">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
@@ -41,7 +38,6 @@
             </svg>
             <span class="nav-label">Séries</span>
           </router-link>
-
           <router-link to="/continue" class="nav-item" active-class="nav-item-active" title="Continuar">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
@@ -49,14 +45,12 @@
             </svg>
             <span class="nav-label">Continuar</span>
           </router-link>
-
           <router-link to="/recent" class="nav-item" active-class="nav-item-active" title="Recém Adicionados">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
             <span class="nav-label">Recém Adicionados</span>
           </router-link>
-
           <router-link to="/watchlist" class="nav-item" active-class="nav-item-active" title="Minha Lista">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
@@ -64,9 +58,7 @@
             <span class="nav-label">Minha Lista</span>
           </router-link>
         </div>
-
         <div class="nav-divider"></div>
-
         <div class="nav-section nav-section-bottom">
           <router-link to="/logs" class="nav-item" active-class="nav-item-active" title="Logs">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -75,7 +67,6 @@
             </svg>
             <span class="nav-label">Logs</span>
           </router-link>
-
           <router-link to="/settings" class="nav-item" active-class="nav-item-active" title="Configurações">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"/>
@@ -86,14 +77,12 @@
         </div>
       </nav>
     </aside>
-
     <!-- Mobile Sidebar Overlay -->
     <div
       v-if="mobileSidebarOpen"
       class="sidebar-overlay"
       @click="mobileSidebarOpen = false"
     ></div>
-
     <!-- Main Content Area -->
     <div class="main-area">
       <!-- Top Header -->
@@ -106,7 +95,6 @@
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-
         <!-- Search bar -->
         <div class="header-search">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -128,7 +116,6 @@
             </svg>
           </button>
         </div>
-
         <!-- User avatar -->
         <div class="header-user">
           <div class="user-avatar">
@@ -142,13 +129,11 @@
           </svg>
         </div>
       </header>
-
       <!-- Page Content -->
       <main class="page-content">
         <slot />
       </main>
     </div>
-
     <!-- Mobile Bottom Navigation -->
     <nav class="mobile-bottom-nav glass-dark">
       <router-link to="/" class="mobile-nav-item" exact-active-class="mobile-nav-item-active">
@@ -178,54 +163,41 @@
     </nav>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
 const router = useRouter()
 const route = useRoute()
-
 const sidebarCollapsed = ref(false)
 const mobileSidebarOpen = ref(false)
 const searchQuery = ref('')
-
-// Close mobile sidebar on route change
 watch(() => route.path, () => {
   mobileSidebarOpen.value = false
 })
-
 const goToSearch = () => {
   if (searchQuery.value.trim()) {
     router.push({ path: '/search', query: { q: searchQuery.value.trim() } })
   }
 }
-
 const onSearchInput = () => {
-  // Could implement instant search dropdown here
 }
-
 const clearSearch = () => {
   searchQuery.value = ''
 }
 </script>
-
 <style scoped>
 /* ==========================================
    APP LAYOUT
    ========================================== */
-
 .app-layout {
   display: flex;
   min-height: 100vh;
   background: var(--color-cinema-dark-900);
   position: relative;
 }
-
 /* ==========================================
    SIDEBAR
    ========================================== */
-
 .sidebar {
   width: var(--sidebar-width);
   min-height: 100vh;
@@ -243,22 +215,18 @@ const clearSearch = () => {
   overflow-x: hidden;
   scrollbar-width: none;
 }
-
 .sidebar::-webkit-scrollbar { display: none; }
-
 .sidebar-logo {
   padding: 1.5rem 1.25rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 }
-
 .logo-link {
   display: flex;
   align-items: center;
   gap: 0.625rem;
   text-decoration: none;
 }
-
 .logo-icon {
   width: 2rem;
   height: 2rem;
@@ -270,13 +238,11 @@ const clearSearch = () => {
   flex-shrink: 0;
   box-shadow: 0 2px 12px var(--color-accent-glow);
 }
-
 .logo-icon svg {
   width: 1.125rem;
   height: 1.125rem;
   color: #fff;
 }
-
 .logo-text {
   font-family: var(--font-display);
   font-size: 1rem;
@@ -284,15 +250,12 @@ const clearSearch = () => {
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
-
 .logo-media {
   color: #fff;
 }
-
 .logo-server {
   color: var(--color-accent);
 }
-
 /* Navigation */
 .sidebar-nav {
   flex: 1;
@@ -300,24 +263,20 @@ const clearSearch = () => {
   flex-direction: column;
   padding: 1rem 0;
 }
-
 .nav-section {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
   padding: 0 0.75rem;
 }
-
 .nav-section-bottom {
   margin-top: auto;
   padding-top: 1rem;
 }
-
 .nav-divider {
   margin: 1rem 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
-
 .nav-item {
   display: flex;
   align-items: center;
@@ -333,17 +292,14 @@ const clearSearch = () => {
   overflow: hidden;
   position: relative;
 }
-
 .nav-item:hover {
   color: var(--color-text-primary);
   background: rgba(255, 255, 255, 0.06);
 }
-
 .nav-item-active {
   color: var(--color-text-primary) !important;
   background: rgba(229, 9, 20, 0.12) !important;
 }
-
 .nav-item-active::before {
   content: '';
   position: absolute;
@@ -355,18 +311,15 @@ const clearSearch = () => {
   background: var(--color-accent);
   border-radius: 0 2px 2px 0;
 }
-
 .nav-icon {
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
   stroke-width: 1.75;
 }
-
 .nav-label {
   font-size: 0.875rem;
 }
-
 /* Sidebar Overlay for mobile */
 .sidebar-overlay {
   position: fixed;
@@ -375,11 +328,9 @@ const clearSearch = () => {
   z-index: 39;
   backdrop-filter: blur(4px);
 }
-
 /* ==========================================
    MAIN AREA
    ========================================== */
-
 .main-area {
   flex: 1;
   min-width: 0;
@@ -388,11 +339,9 @@ const clearSearch = () => {
   flex-direction: column;
   min-height: 100vh;
 }
-
 /* ==========================================
    TOP HEADER
    ========================================== */
-
 .top-header {
   position: sticky;
   top: 0;
@@ -404,7 +353,6 @@ const clearSearch = () => {
   height: 64px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-
 .mobile-menu-btn {
   display: none;
   align-items: center;
@@ -416,17 +364,14 @@ const clearSearch = () => {
   transition: all var(--transition-fast);
   flex-shrink: 0;
 }
-
 .mobile-menu-btn:hover {
   color: var(--color-text-primary);
   background: rgba(255, 255, 255, 0.08);
 }
-
 .mobile-menu-btn svg {
   width: 1.25rem;
   height: 1.25rem;
 }
-
 .header-search {
   flex: 1;
   max-width: 480px;
@@ -434,7 +379,6 @@ const clearSearch = () => {
   display: flex;
   align-items: center;
 }
-
 .search-icon {
   position: absolute;
   left: 0.875rem;
@@ -443,7 +387,6 @@ const clearSearch = () => {
   color: var(--color-text-muted);
   pointer-events: none;
 }
-
 .search-input {
   width: 100%;
   padding: 0.6rem 2.5rem 0.6rem 2.5rem;
@@ -454,17 +397,14 @@ const clearSearch = () => {
   font-size: 0.875rem;
   transition: all var(--transition-fast);
 }
-
 .search-input::placeholder {
   color: var(--color-text-muted);
 }
-
 .search-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.09);
   border-color: rgba(229, 9, 20, 0.4);
 }
-
 .search-clear {
   position: absolute;
   right: 0.875rem;
@@ -473,10 +413,8 @@ const clearSearch = () => {
   color: var(--color-text-muted);
   transition: color var(--transition-fast);
 }
-
 .search-clear:hover { color: var(--color-text-primary); }
 .search-clear svg { width: 100%; height: 100%; }
-
 .header-user {
   display: flex;
   align-items: center;
@@ -487,11 +425,9 @@ const clearSearch = () => {
   border-radius: 0.5rem;
   transition: background var(--transition-fast);
 }
-
 .header-user:hover {
   background: rgba(255, 255, 255, 0.06);
 }
-
 .user-avatar {
   width: 2rem;
   height: 2rem;
@@ -502,38 +438,31 @@ const clearSearch = () => {
   justify-content: center;
   flex-shrink: 0;
 }
-
 .user-avatar svg {
   width: 1.25rem;
   height: 1.25rem;
   color: #fff;
 }
-
 .user-name {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-primary);
 }
-
 .chevron-icon {
   width: 1rem;
   height: 1rem;
   color: var(--color-text-muted);
 }
-
 /* ==========================================
    PAGE CONTENT
    ========================================== */
-
 .page-content {
   flex: 1;
   overflow-x: hidden;
 }
-
 /* ==========================================
    MOBILE BOTTOM NAV
    ========================================== */
-
 .mobile-bottom-nav {
   display: none;
   position: fixed;
@@ -545,7 +474,6 @@ const clearSearch = () => {
   padding: 0.5rem 1rem;
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
-
 .mobile-nav-item {
   display: flex;
   flex-direction: column;
@@ -559,60 +487,47 @@ const clearSearch = () => {
   transition: color var(--transition-fast);
   border-radius: 0.375rem;
 }
-
 .mobile-nav-item svg {
   width: 1.375rem;
   height: 1.375rem;
 }
-
 .mobile-nav-item:hover,
 .mobile-nav-item-active {
   color: var(--color-accent);
 }
-
 /* ==========================================
    RESPONSIVE
    ========================================== */
-
 @media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);
   }
-
   .sidebar.sidebar-open {
     transform: translateX(0);
   }
-
   .main-area {
     margin-left: 0;
   }
-
   .mobile-menu-btn {
     display: flex;
   }
 }
-
 @media (max-width: 768px) {
   .mobile-bottom-nav {
     display: flex;
   }
-
   .page-content {
     padding-bottom: 5rem;
   }
-
   .top-header {
     padding: 0.75rem 1rem;
   }
-
   .header-search {
     max-width: none;
   }
-
   .user-name {
     display: none;
   }
-
   .chevron-icon {
     display: none;
   }

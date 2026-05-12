@@ -13,9 +13,12 @@ services:
       # --- CONFIGURAÇÃO PARA RASPBERRY PI 3 ---
       # Para Pi 3 use: h264_v4l2m2m
       # Para N100 use: h264_qsv
+      # Para AMD Radeon use: h264_vaapi
       # Para Software use: libx264
-      - TRANSCODE_CODEC=h264_qsv
+      - TRANSCODE_CODEC=h264_vaapi
       - TRANSCODE_PRESET=fast
+    devices:
+      - /dev/dri:/dev/dri
     # devices:
       # Necessário para acessar o chip de vídeo da Pi 3 (aceleração de hardware)
       #- /dev/video10:/dev/video10

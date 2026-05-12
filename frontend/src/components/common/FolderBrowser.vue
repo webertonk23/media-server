@@ -5,7 +5,6 @@
         <h3>Explorar Pastas</h3>
         <span class="current-path">{{ currentPath }}</span>
       </div>
-      
       <div class="file-list">
         <button class="file-item folder-up" @click="navigate('..')">
           <span class="icon">⬆️</span> .. (Voltar)
@@ -14,7 +13,6 @@
           <span class="icon">📁</span> {{ dir.name }}
         </button>
       </div>
-
       <div class="modal-actions">
         <button class="btn-ghost" @click="$emit('close')">Cancelar</button>
         <button class="btn-primary" @click="$emit('select', currentPath)">Selecionar Pasta</button>
@@ -22,16 +20,13 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import apiClient from '@/services/api'
-
 defineProps<{ show: boolean }>()
 const emit = defineEmits(['close', 'select'])
 const currentPath = ref('/')
 const dirs = ref<{name: string, path: string}[]>([])
-
 const navigate = async (path: string) => {
   if (path === '..') {
     const parent = currentPath.value.substring(0, currentPath.value.lastIndexOf('/')) || '/'
@@ -46,10 +41,8 @@ const navigate = async (path: string) => {
     console.error(e)
   }
 }
-
 onMounted(() => navigate('/'))
 </script>
-
 <style scoped>
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal-content { background: rgba(20, 20, 25, 0.95); padding: 1.5rem; border-radius: 1rem; width: 450px; max-height: 80vh; display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }

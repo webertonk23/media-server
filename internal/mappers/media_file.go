@@ -1,10 +1,8 @@
 package mappers
-
 import (
 	"media-server/internal/dto"
 	"media-server/internal/models"
 )
-
 func ToMediaFileResponse(file models.MediaFile) dto.MediaFileResponse {
 	return dto.MediaFileResponse{
 		ID:           file.ID,
@@ -23,7 +21,6 @@ func ToMediaFileResponse(file models.MediaFile) dto.MediaFileResponse {
 		UpdatedAt:    file.UpdatedAt,
 	}
 }
-
 func ToMediaFileResponses(files []models.MediaFile) []dto.MediaFileResponse {
 	responses := make([]dto.MediaFileResponse, len(files))
 	for i, f := range files {
