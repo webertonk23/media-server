@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <!-- Loading state -->
-    <div v-if="loading && mediaItems.length === 0" class="home-loading">
+    <div v-if="loading && (!mediaItems || mediaItems.length === 0)" class="home-loading">
       <div v-for="i in 3" :key="i" class="loading-section">
         <div class="skeleton loading-title"></div>
         <div class="loading-cards">
@@ -10,7 +10,7 @@
       </div>
     </div>
     <!-- Error state -->
-    <div v-else-if="error && mediaItems.length === 0" class="home-error">
+    <div v-else-if="error && (!mediaItems || mediaItems.length === 0)" class="home-error">
       <div class="error-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="10"/>
@@ -33,7 +33,7 @@
         @more-info="handleMoreInfo"
       />
       <!-- Continue Watching -->
-      <section v-if="continueWatchingItems.length > 0" class="section">
+      <section v-if="continueWatchingItems && continueWatchingItems.length > 0" class="section">
         <MediaRow
           title="Continuar Assistindo"
           :items="continueWatchingItems.map(i => i.media)"
@@ -43,7 +43,7 @@
         />
       </section>
       <!-- Recently Added -->
-      <section v-if="recentMedia.length > 0" class="section">
+      <section v-if="recentMedia && recentMedia.length > 0" class="section">
         <MediaRow
           title="Recém Adicionados"
           :items="recentMedia"
@@ -52,7 +52,7 @@
         />
       </section>
       <!-- Movies -->
-      <section v-if="movies.length > 0" class="section">
+      <section v-if="movies && movies.length > 0" class="section">
         <MediaRow
           title="Filmes"
           :items="movies"
@@ -61,7 +61,7 @@
         />
       </section>
       <!-- Series -->
-      <section v-if="series.length > 0" class="section">
+      <section v-if="series && series.length > 0" class="section">
         <MediaRow
           title="Séries"
           :items="series"
@@ -103,17 +103,17 @@ const continueWatchingProgressMap = computed(() => {
   return map
 })
 const heroMedia = computed(() => 
-  mediaItems.value.filter(item => item.type !== 'episode').slice(0, 5)
+  mediaItems?.value?.filter(item => item.type !== 'episode').slice(0, 5)
 )
 const featuredMedia = computed(() => heroMedia.value[0] || null)
 const recentMedia = computed(() => 
-  mediaItems.value.filter(item => item.type !== 'episode').slice(0, 20)
+  mediaItems?.value?.filter(item => item.type !== 'episode').slice(0, 20)
 )
 const movies = computed(() =>
-  mediaItems.value.filter(item => item.type === 'movie').slice(0, 20)
+  mediaItems?.value?.filter(item => item.type === 'movie').slice(0, 20)
 )
 const series = computed(() =>
-  mediaItems.value.filter(item => item.type === 'series').slice(0, 20)
+  mediaItems?.value?.filter(item => item.type === 'series').slice(0, 20)
 )
 const loadInitialData = async () => {
   loading.value = true
