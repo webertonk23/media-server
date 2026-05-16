@@ -92,6 +92,21 @@
         <div class="settings-section">
           <h2 class="section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2"/>
+              <path d="M17 9V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2"/>
+              <rect x="7" y="13" width="10" height="8" rx="2"/>
+            </svg>
+            App Mobile
+          </h2>
+          <div class="settings-items">
+            <div class="settings-item apk-item">
+              <APKDownload />
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -130,6 +145,7 @@ import { ref, onMounted } from 'vue'
 import apiClient from '@/services/api'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import FolderBrowser from '@/components/common/FolderBrowser.vue'
+import APKDownload from '@/components/common/APKDownload.vue'
 const showBrowser = ref(false)
 const targetConfig = ref<'movie' | 'series'>('movie')
 const config = ref({ movie_path: '', series_path: '', scan_interval: 1 })
@@ -261,6 +277,10 @@ const scanSeries = () => runScan('/scan/series', 'Scan de séries')
   background: rgba(255,255,255,0.07);
   border-radius: 0.25rem;
   color: var(--color-text-secondary);
+}
+.apk-item {
+  padding: 0;
+  border: none;
 }
 .scan-toast {
   position: fixed;

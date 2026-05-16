@@ -27,6 +27,10 @@ func Setup(app *fiber.App) {
 	api.Get("/settings", handlers.GetSettings)
 	api.Post("/settings", handlers.SaveSettings)
 	api.Get("/logs", handlers.GetLogs)
+
+	api.Get("/apk/info", handlers.GetAPKInfo)
+	api.Get("/apk/download", handlers.DownloadAPK)
+
 	app.Static("/", "./frontend/dist")
 	app.Use(func(c *fiber.Ctx) error {
 		if strings.HasPrefix(c.Path(), "/api") {
