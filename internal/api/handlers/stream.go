@@ -8,8 +8,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
+	"context"
+	"time"
 
 	"media-server/internal/services"
 
@@ -19,6 +22,8 @@ import (
 var (
 	hwCodec string
 	once    sync.Once
+	timeRegex  = regexp.MustCompile(`^\d{1,2}:\d{2}:\d{2}(\.\d+)?$`)
+	audioRegex = regexp.MustCompile(`^\d+$`)
 )
 
 type limitReadCloser struct {
@@ -142,8 +147,17 @@ func streamViaFFmpeg(c *fiber.Ctx, inputPath string, start string, audio string)
 		codec = "copy"
 	}
 
-	args := buildFFmpegArgs(inputPath, codec, start, audio)
-	cmd := exec.Command("ffmpeg", args...)
+	args, err := buildFFmpegArgs(inputPath, codec, start, audio)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Hour)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "ffmpeg", args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to create ffmpeg pipe"})
@@ -160,8 +174,18 @@ func streamViaFFmpeg(c *fiber.Ctx, inputPath string, start string, audio string)
 
 	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
 		defer stdout.Close()
-		defer cmd.Wait()
+		defer func() {
+			if cmd.Process != nil {
+				cmd.Process.Kill()
+			}
+			cmd.Wait()
+		}()
+		
 		io.Copy(w, stdout)
+		
+		if ctx.Err() == context.DeadlineExceeded {
+			log.Println("[Stream] Timeout de 2 horas excedido")
+		}
 	})
 	return nil
 }
@@ -175,27 +199,47 @@ func shouldCopyVideo(path string) bool {
 	return strings.TrimSpace(string(output)) == "h264"
 }
 
-func buildFFmpegArgs(inputPath, codec, start, audio string) []string {
+func buildFFmpegArgs(inputPath, codec, start, audio string) ([]string, error) {
 	args := []string{}
+	
 	if strings.Contains(codec, "vaapi") {
 		args = append(args, "-vaapi_device", "/dev/dri/renderD129")
 	}
+
 	if start != "" {
+		if !timeRegex.MatchString(start) {
+			return nil, fmt.Errorf("formato de tempo inválido: deve ser HH:MM:SS")
+		}
 		args = append(args, "-ss", start)
 	}
+	
 	args = append(args, "-i", inputPath, "-map", "0:v:0")
+
 	if audio != "" {
-		args = append(args, "-map", fmt.Sprintf("0:a:%s", audio))
+		if !audioRegex.MatchString(audio) {
+			return nil, fmt.Errorf("índice de áudio inválido: deve ser um número")
+		}
+		var audioIdx int
+		fmt.Sscanf(audio, "%d", &audioIdx)
+		if audioIdx < 0 || audioIdx > 32 {
+			return nil, fmt.Errorf("índice de áudio fora do range permitido (0-32)")
+		}
+		args = append(args, "-map", fmt.Sprintf("0:a:%d", audioIdx))
 	} else {
 		args = append(args, "-map", "0:a:0")
 	}
+	
 	if strings.Contains(codec, "vaapi") {
 		args = append(args, "-vf", "format=nv12,hwupload")
 	}
+	
 	args = append(args, "-c:v", codec)
+	
 	if codec == "libx264" {
 		args = append(args, "-preset", "veryfast", "-crf", "23", "-tune", "zerolatency", "-profile:v", "baseline", "-level", "3.0")
 	}
+	
 	args = append(args, "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-ac", "2", "-movflags", "frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset+frag_discont+faststart", "-f", "mp4", "pipe:1")
-	return args
+	
+	return args, nil
 }

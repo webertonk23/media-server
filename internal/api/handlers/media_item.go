@@ -11,7 +11,18 @@ func GetMediaItems(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
 	search := c.Query("search", "")
-	mediaType := c.Query("type", "") 
+	mediaType := c.Query("type", "")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100 
+	}
+
 	mediaItemService := services.NewMediaItemService()
 	items, total, err := mediaItemService.GetMediaItems(
 		page,
@@ -24,6 +35,7 @@ func GetMediaItems(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
+
 	var response []dto.MediaItemResponse
 	for _, item := range items {
 		response = append(
@@ -31,6 +43,7 @@ func GetMediaItems(c *fiber.Ctx) error {
 			mappers.ToMediaItemResponse(item),
 		)
 	}
+
 	return c.JSON(dto.PaginatedResponse{
 		Page:  page,
 		Limit: limit,
@@ -58,6 +71,17 @@ func GetMovies(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
 	search := c.Query("search", "")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
 	mediaItemService := services.NewMediaItemService()
 	items, total, err := mediaItemService.GetMediaItems(
 		page,
@@ -70,6 +94,7 @@ func GetMovies(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
+
 	var response []dto.MediaItemResponse
 	for _, item := range items {
 		response = append(
@@ -77,6 +102,7 @@ func GetMovies(c *fiber.Ctx) error {
 			mappers.ToMediaItemResponse(item),
 		)
 	}
+
 	return c.JSON(dto.PaginatedResponse{
 		Page:  page,
 		Limit: limit,

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"media-server/internal/config"
@@ -11,8 +12,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
+)
+
+var (
+	invalidFilenameChars = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
+	safeLanguageCode     = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 )
 
 type TranscoderService struct {
@@ -118,8 +125,17 @@ func (s *TranscoderService) runFFmpegMultiAudio(input, output string, transcodeV
 		}
 	}
 	args = append(args, "-pix_fmt", "yuv420p", "-async", "1", "-fps_mode", "cfr", "-movflags", "+faststart", "-y", output)
-	cmd := exec.Command("ffmpeg", args...)
+	
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+	defer cancel()
+	
+	cmd := exec.CommandContext(ctx, "ffmpeg", args...)
 	out, err := cmd.CombinedOutput()
+	
+	if ctx.Err() == context.DeadlineExceeded {
+		return fmt.Errorf("transcodificação excedeu o tempo limite de 30 minutos")
+	}
+	
 	if err != nil {
 		return fmt.Errorf("ffmpeg error: %v, output: %s", err, string(out))
 	}
@@ -129,10 +145,20 @@ func (s *TranscoderService) extractThumbnail(input string, mediaItemID uint) {
 	output := filepath.Join(config.AppConfig.MediaPath, "thumbnails", fmt.Sprintf("%d.jpg", mediaItemID))
 	os.MkdirAll(filepath.Dir(output), 0755)
 	log.Printf("[Pipeline] Extraindo thumbnail para MediaItem %d...\n", mediaItemID)
-	cmd := exec.Command("ffmpeg", "-ss", "00:00:10", "-i", input, "-vframes", "1", "-q:v", "2", "-y", output)
+	
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+	
+	cmd := exec.CommandContext(ctx, "ffmpeg", "-ss", "00:00:10", "-i", input, "-vframes", "1", "-q:v", "2", "-y", output)
 	err := cmd.Run()
+	
 	if err != nil {
-		exec.Command("ffmpeg", "-ss", "00:00:01", "-i", input, "-vframes", "1", "-q:v", "2", "-y", output).Run()
+		if ctx.Err() == context.DeadlineExceeded {
+			log.Printf("[Pipeline] Timeout ao extrair thumbnail, tentando posição alternativa\n")
+		}
+		ctx2, cancel2 := context.WithTimeout(context.Background(), 1*time.Minute)
+		defer cancel2()
+		exec.CommandContext(ctx2, "ffmpeg", "-ss", "00:00:01", "-i", input, "-vframes", "1", "-q:v", "2", "-y", output).Run()
 	}
 }
 func (s *TranscoderService) saveChapters(mediaItemID uint, info *utils.FFProbeOutput) {
@@ -155,17 +181,65 @@ func (s *TranscoderService) saveChapters(mediaItemID uint, info *utils.FFProbeOu
 		database.DB.Create(&chapter)
 	}
 }
+func sanitizeFilename(name string) string {
+	name = strings.TrimSpace(name)
+	
+	name = invalidFilenameChars.ReplaceAllString(name, "_")
+	
+	name = regexp.MustCompile(`_+`).ReplaceAllString(name, "_")
+	
+	if len(name) > 255 {
+		name = name[:255]
+	}
+	
+	name = strings.Trim(name, "_")
+	
+	if name == "" {
+		name = "unnamed"
+	}
+	
+	return name
+}
+
 func (s *TranscoderService) extractSubtitles(input string, finalVideoPath string, info *utils.FFProbeOutput) {
 	subs := info.GetSubtitles()
 	basePath := strings.TrimSuffix(finalVideoPath, filepath.Ext(finalVideoPath))
+
+	absLibraryPath, _ := filepath.Abs(config.AppConfig.LibraryPath)
+	
 	for i, sub := range subs {
+		if sub.Index < 0 || sub.Index > 100 {
+			log.Printf("[Pipeline] Índice de legenda inválido: %d\n", sub.Index)
+			continue
+		}
+
 		lang := sub.Tags.Language
-		if lang == "" {
+		if lang == "" || !safeLanguageCode.MatchString(lang) {
 			lang = fmt.Sprintf("track%d", i)
 		}
+		
 		outputSub := basePath + "." + lang + ".vtt"
+		
+		absOutputSub, _ := filepath.Abs(outputSub)
+		if !strings.HasPrefix(absOutputSub, absLibraryPath) {
+			log.Printf("[Pipeline] Tentativa de escrever legenda fora do diretório permitido: %s\n", outputSub)
+			continue
+		}
+		
 		log.Printf("[Pipeline] Extraindo legenda para destino final: %s\n", outputSub)
-		exec.Command("ffmpeg", "-i", input, "-map", fmt.Sprintf("0:%d", sub.Index), "-y", outputSub).Run()
+		
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		cmd := exec.CommandContext(ctx, "ffmpeg", "-i", input, "-map", fmt.Sprintf("0:%d", sub.Index), "-y", outputSub)
+		err := cmd.Run()
+		cancel()
+		
+		if err != nil {
+			if ctx.Err() == context.DeadlineExceeded {
+				log.Printf("[Pipeline] Timeout ao extrair legenda: %s\n", outputSub)
+			} else {
+				log.Printf("[Pipeline] Erro ao extrair legenda: %v\n", err)
+			}
+		}
 	}
 }
 func (s *TranscoderService) determineFinalPath(originalPath string, info *utils.FFProbeOutput) (string, error) {
@@ -176,6 +250,8 @@ func (s *TranscoderService) determineFinalPath(originalPath string, info *utils.
 		if title == "" {
 			title = parsedSeries.Title
 		}
+		title = sanitizeFilename(title)
+		
 		season := parsedSeries.Season
 		if season == 0 && metadata.Season != "" {
 			fmt.Sscanf(metadata.Season, "%d", &season)
@@ -196,6 +272,8 @@ func (s *TranscoderService) determineFinalPath(originalPath string, info *utils.
 	if title == "" {
 		title = parsedMovie.Title
 	}
+	title = sanitizeFilename(title)
+	
 	year := parsedMovie.Year
 	folderName := title
 	if year > 0 {
